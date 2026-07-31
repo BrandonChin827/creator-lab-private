@@ -1,0 +1,13 @@
+# Internal planning and verification files
+TASK.md
+creator-lab-offer.md
+verify-cdp.mjs
+mobile-capture.mjs
+
+# Local screenshots and captures
+*.png
+
+# OS and editor files
+.DS_Store
+.vscode/
+.idea/
