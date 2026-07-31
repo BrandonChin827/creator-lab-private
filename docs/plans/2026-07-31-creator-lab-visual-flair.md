@@ -1,10 +1,10 @@
-# Creator Lab Visual Flair Implementation Plan
+# Creator Lab Conversion + Visual Flair Implementation Plan
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
-**Goal:** Add human, tactile brand assets and restrained motion to Creator Lab Private so the site feels alive and premium without becoming a generic animated AI landing page.
+**Goal:** Rebuild Creator Lab Private around a simple proof-led conversion outline, then add human, tactile brand assets and restrained motion so the site feels alive and premium without becoming a generic animated AI landing page.
 
-**Architecture:** Keep the site as a fast, self-contained static experience. Add a small `/assets` directory for optimized imagery, centralize motion tokens and hover lighting in `index.html`, and use one lightweight pointer controller plus IntersectionObserver. All effects must degrade cleanly on touch devices and disable under `prefers-reduced-motion`.
+**Architecture:** First simplify the page hierarchy using the transferable principles from Alex Hormozi’s “We Make Our Landing Pages Like This” Short and Acquisition.com workshop page: clear outcome, clarification, visual proof, one action, objections, evidence, and qualification. Keep Creator Lab’s own brand, voice, scope, and visual system. Then add a small `/assets` directory for optimized imagery, centralize motion tokens and hover lighting in `index.html`, and use one lightweight pointer controller plus IntersectionObserver. All effects must degrade cleanly on touch devices and disable under `prefers-reduced-motion`.
 
 **Tech Stack:** Semantic HTML, CSS transforms/custom properties/keyframes, vanilla JavaScript, WebP/AVIF/SVG assets, existing GitHub Pages deployment.
 
@@ -18,6 +18,270 @@
 4. **Stillness is part of the design.** At least 70% of the page should remain visually quiet at any moment.
 5. **No generic AI imagery.** No robots, glowing brains, floating chat bubbles, neon circuits, or stock futuristic faces.
 6. **No animation penalty.** Use transform and opacity wherever possible; avoid layout-triggering properties and heavy canvas libraries.
+
+## Conversion principles extracted from the Short
+
+The Short’s governing rule is:
+
+> If an element does not increase the percentage of qualified applications, remove it.
+
+Transferable structure:
+
+1. **Headline:** Stop the right founder and promise one clear, controlled outcome.
+2. **Subheadline:** Clarify who it is for, the mechanism, platform focus, and 90-day format.
+3. **Hero proof:** Show the thing being built or the experience the client will receive.
+4. **CTA:** Say what the visitor gets and how they get it.
+5. **Form:** Ask only for the information required to judge fit; split it into steps if it becomes long.
+6. **Three objections:** Answer the three most common reasons a qualified founder hesitates.
+7. **Social proof:** Use it only when it reduces uncertainty, and only when it is real and permissioned.
+8. **Everything else:** Keep the page mobile-first, fast, legally complete, and focused on one action.
+
+## What to borrow from Acquisition.com
+
+Borrow:
+
+- A clear outcome-led hero.
+- One clarifying subheadline.
+- A proof asset directly beneath or beside the promise.
+- One repeated CTA.
+- Evidence before detailed explanation.
+- Three concrete “what you get” outcomes.
+- Objection and fit handling near the application.
+- A short path from understanding the offer to taking action.
+- Real legal/privacy language before collecting production leads.
+
+Do not borrow:
+
+- Acquisition.com’s visual style, colors, typography, torn-paper treatment, or purple buttons.
+- Their claims, revenue proof, workshop structure, testimonials, or authority signals.
+- Their exact language or “I’m ready” CTA framing.
+- A giant proof wall without enough real Creator Lab evidence.
+- Scarcity or urgency that is not true.
+
+---
+
+### Task 0: Refactor the landing-page conversion outline
+
+**Objective:** Simplify the current long-form page into a proof-led sequence while preserving the information needed to qualify a high-ticket founder.
+
+**Files:**
+- Modify: `/Users/alexcruz/projects/ai-authority-landing/index.html`
+- Update after implementation: `/Users/alexcruz/projects/ai-authority-landing/verify-cdp.mjs`
+
+**New section order:**
+
+#### 1. Minimal navigation
+
+Keep only:
+
+- Creator Lab wordmark.
+- One small qualifier such as `Private · 90 days`.
+- One CTA: `Apply for Creator Lab Private`.
+
+Remove or de-emphasize section navigation links in the hero state. The visitor should not be encouraged to browse randomly before understanding the offer.
+
+#### 2. Outcome-led hero
+
+Use this messaging hierarchy:
+
+**Eyebrow:**
+
+`CREATOR LAB PRIVATE · 90-DAY AI AUTHORITY PARTNERSHIP`
+
+**Headline direction:**
+
+`Turn your expertise into a Creator OS for YouTube and X.`
+
+This is clearer and more controlled than promising the broad outcome “build your personal brand.” It says what gets built without guaranteeing audience growth.
+
+**Subheadline direction:**
+
+`Learn practical AI, build personalized Claude Skills, and leave with a repeatable system for turning what you know into content.`
+
+**Primary CTA:**
+
+`Apply for the 90-Day Partnership →`
+
+**CTA microcopy:**
+
+`A short application to confirm your business, expertise, and publishing capacity.`
+
+#### 3. Hero proof asset
+
+The hero visual must prove the mechanism rather than merely decorate the page.
+
+Best option:
+
+- A 45–75 second silent or captioned walkthrough of a real Creator OS.
+- Show the knowledge base, Claude Project, one Skill, a YouTube package, and the content dashboard.
+
+Static fallback:
+
+- The living Creator OS diagram.
+- Add three real interface crops or annotated outputs around it.
+- Label them `Your knowledge`, `Your Skills`, and `Your publishing queue`.
+
+The proof asset must show what the founder gets. Do not use a generic portrait as the primary hero proof.
+
+#### 4. Proof-of-work strip
+
+Place directly after the first CTA.
+
+Until client testimonials exist, show demonstrable evidence:
+
+- A real Creator OS walkthrough.
+- A redacted personalized Skill.
+- A sample YouTube pre-production package.
+- A sample editorial dashboard.
+- Brandon explaining why each component exists.
+
+Label this section honestly, such as:
+
+`SEE WHAT GETS BUILT`
+
+Do not call samples “client results” unless they come from an actual client and permission has been documented.
+
+#### 5. Three concrete outcomes
+
+Replace scattered feature explanation with three outcome blocks:
+
+1. **A personalized AI workspace** — your expertise, voice, proof, and standards organized for Claude.
+2. **A working publishing system** — research, YouTube pre-production, X assets, and editorial cadence.
+3. **An operating playbook you own** — reusable Skills, documentation, and team/founder handoff.
+
+Each block should include one image or artifact that proves the output.
+
+#### 6. Three initial objections
+
+Use the Short’s three-bullet principle. Start with these as informed hypotheses, then revise them using real application and sales-call data:
+
+1. **“I’m not technical.”** The system is taught through real work; the founder does not need to become a developer.
+2. **“Will AI make my content generic?”** The system is grounded in the founder’s actual expertise, stories, proof, voice, and review standards.
+3. **“Is this a done-for-you content agency?”** No. Creator Lab builds strategy, systems, and pre-production; the founder remains involved and filming/editing/posting are not included.
+
+Do not claim these are the “most common objections” until actual calls support that statement.
+
+#### 7. How it works
+
+Compress the current Creator OS and roadmap sections into one clear sequence:
+
+- **Capture:** extract expertise, voice, proof, and ideas.
+- **Build:** configure Claude, knowledge, and Skills.
+- **Publish:** create YouTube pre-production and native X assets.
+- **Improve:** refine the system through real use.
+
+Then show the three 30-day phases immediately below it.
+
+Avoid repeating the same mechanism in multiple full sections.
+
+#### 8. Detailed scope and boundaries
+
+Keep the seven deliverables, but present them as supporting detail after the visitor understands the outcome and proof.
+
+Maintain explicit exclusions:
+
+- No filming.
+- No editing.
+- No finished thumbnails.
+- No account management.
+- No guaranteed audience or business performance.
+
+#### 9. Real proof section
+
+Use a staged proof ladder:
+
+**Stage A — now:**
+
+- Proof of process.
+- Product walkthrough.
+- Real sample outputs.
+- Brandon’s own working systems and content artifacts.
+- Clear explanation of how and why the system works.
+
+**Stage B — after founding clients:**
+
+- Permissioned testimonial quotes.
+- Before/after workflow comparisons.
+- Examples of Skills and assets built for clients.
+- Client-reported time or clarity improvements only when documented.
+
+**Stage C — after repeatable proof:**
+
+- Full case studies.
+- Specific measured improvements with dates, context, and client approval.
+- No implication that results are typical or guaranteed.
+
+Never invent a testimonial, client logo, numerical result, or case study to fill this section.
+
+#### 10. Fit, FAQ, and application
+
+Order this closing sequence as:
+
+1. Who it is for.
+2. Who it is not for.
+3. FAQ focused on remaining buying objections.
+4. One application CTA.
+5. Application form.
+
+Application form recommendation:
+
+**Step 1 — Contact:**
+
+- Name.
+- Email.
+- Website or primary business link.
+
+**Step 2 — Fit:**
+
+- What does the business sell?
+- Current content links.
+- Biggest AI/content bottleneck.
+- Time available to participate and publish.
+
+**Step 3 — Context:**
+
+- What should be different after 90 days?
+- Optional team information.
+- Confirmation that they understand filming, editing, posting, and results are not guaranteed.
+
+Only connect the form after privacy language, data destination, and retention policy are defined.
+
+#### 11. Legal footer
+
+Before public lead collection, add:
+
+- Privacy policy.
+- Terms.
+- Clear consent language.
+- No-guarantee statement.
+- Business contact information.
+
+**Page-length rule:**
+
+The Creator Lab page can remain longer than Hormozi’s simple opt-in page because it sells a complex, high-ticket partnership. However, every section must do one of four jobs:
+
+1. Clarify the outcome.
+2. Prove the mechanism.
+3. Resolve a buying objection.
+4. Qualify the applicant.
+
+If a section does none of those, remove it.
+
+**Verification:**
+
+- A first-time visitor can answer `What is it?`, `Who is it for?`, `What do I get?`, `Why should I believe it?`, and `What do I do next?` within 60 seconds.
+- There is one primary CTA label across the page.
+- The proof asset supports the headline rather than repeating it.
+- No unsupported proof appears anywhere.
+- Mobile visitors reach the first CTA and proof asset without excessive scrolling.
+- The application remains clearly described as preview-only until a production endpoint exists.
+
+**Commit:**
+
+```bash
+git add index.html verify-cdp.mjs
+git commit -m "refactor: simplify Creator Lab conversion flow"
+```
 
 ---
 
@@ -221,9 +485,9 @@ git commit -m "feat: animate the Creator OS workflow"
 
 ---
 
-### Task 6: Add one human editorial asset section
+### Task 6: Add a human proof-of-work section
 
-**Objective:** Break the polished software aesthetic with real founder artifacts and make the site feel authored by a person.
+**Objective:** Make the offer feel authored by a person while visually proving that Creator OS is built from real expertise and real working artifacts.
 
 **Files:**
 - Modify: `/Users/alexcruz/projects/ai-authority-landing/index.html`
@@ -232,14 +496,27 @@ git commit -m "feat: animate the Creator OS workflow"
 
 **Recommended section:**
 
-Insert a compact **“Built from your actual work”** editorial collage between the problem section and Creator OS method.
+Insert a compact **“Built from your actual work”** proof collage directly after the three concrete outcomes or fold it into `SEE WHAT GETS BUILT`.
 
 Content structure:
 
-- One candid founder/workspace image.
-- One cropped, redacted knowledge-base or Skill screenshot.
+- One candid founder/workspace image to establish the human behind the system.
+- One real, redacted knowledge-base or Skill screenshot.
+- One sample YouTube pre-production package or editorial dashboard.
 - One handwritten note or framework fragment.
 - Short copy explaining that Creator OS is built from calls, notes, decisions, customer questions, proof, and lived experience—not generic prompts.
+- One optional 45–75 second walkthrough in which Brandon explains the artifacts and how they connect.
+
+**Proof rule:**
+
+Every asset must do at least one of these jobs:
+
+1. Show an actual deliverable.
+2. Demonstrate the Creator OS mechanism.
+3. Establish Brandon’s direct involvement and judgment.
+4. Resolve the concern that AI-generated content will feel generic.
+
+A photo that provides personality but no credibility can support the composition, but it cannot replace product proof.
 
 **Visual treatment:**
 
@@ -247,23 +524,26 @@ Content structure:
 - Add restrained paper grain and one orange hand-drawn annotation.
 - Avoid a generic three-card feature row.
 - Allow one image to slightly break the grid on desktop while remaining fully contained on mobile.
+- Keep labels factual: `Sample Skill`, `Example content package`, or `Creator OS walkthrough` rather than `Client result`.
 
 **Fallback:**
 
-If real assets are not available, build the layout with clearly labeled temporary editorial placeholders and do not deploy those placeholders publicly.
+If real assets are not available, keep the current Creator OS diagram and use clearly labeled sample outputs. Do not deploy fake testimonials, fake client interfaces, or AI-generated founder imagery.
 
 **Verification:**
 
 - The section feels human even with animation disabled.
+- At least two assets prove a real component of the offer.
 - Screenshots contain no private data.
 - All images have useful alt text.
 - Mobile crop preserves the meaningful part of each image.
+- No sample is framed as a client outcome.
 
 **Commit:**
 
 ```bash
 git add index.html assets/
-git commit -m "feat: add human editorial proof section"
+git commit -m "feat: add human proof-of-work section"
 ```
 
 ---
@@ -450,12 +730,15 @@ If those are not available, the first implementation pass can complete the motio
 
 ## Recommended execution order
 
-1. Implement ambient lighting and hover response.
-2. Animate the existing Creator OS diagram.
-3. Review a screenshot before adding more motion.
-4. Add real founder assets and the editorial collage.
-5. Add restrained scroll choreography and micro-interactions.
-6. Run accessibility/performance QA.
-7. Deploy only after desktop and mobile visual approval.
+1. Refactor the page into the new outcome → proof → objections → qualification sequence.
+2. Build the hero proof asset and proof-of-work strip before adding animation.
+3. Review desktop and mobile screenshots for clarity and page length.
+4. Add ambient lighting and cursor-responsive surfaces.
+5. Animate the existing Creator OS diagram only where it explains the mechanism.
+6. Add real founder assets and the human proof-of-work collage.
+7. Add restrained scroll choreography and micro-interactions.
+8. Connect a real form only after privacy, consent, and data handling are defined.
+9. Run accessibility, performance, form, and unsupported-claim QA.
+10. Deploy only after desktop and mobile visual approval.
 
-This order prevents over-animation and lets the human assets—not effects—become the main source of personality.
+This order makes conversion clarity and proof the foundation. Motion and personality support the offer rather than hiding a weak outline.
