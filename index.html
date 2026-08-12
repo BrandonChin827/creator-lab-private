@@ -25,6 +25,7 @@ footer{padding:76px 0 90px;color:#918c94;background:linear-gradient(180deg,trans
 @media(max-width:620px){.container{width:min(calc(100% - 30px),var(--max))}.logo-float{top:18px;left:18px}.hero{padding:88px 0 66px}.hero h1{font-size:42px}.cta-row .btn-primary{width:100%;padding-inline:13px}.cta-note{font-size:10px}.os-wrap{margin-top:46px}.os-canvas{flex-direction:column;min-height:0;padding:24px 18px;border-radius:16px;transform:none!important}.fline{flex:0 0 26px;width:1px;height:26px}.fline i{left:-2.5px;top:0;animation-name:travelY}.fnode{width:100%}section{padding:66px 0}.section-head{margin-bottom:32px}.section-head h2{font-size:37px}.deliver{padding:24px 22px}.step-wide{grid-template-columns:1fr;gap:8px;padding:22px}.stats{grid-template-columns:1fr}.stat b{font-size:36px}.about-grid{grid-template-columns:1fr}.about-story{padding:26px 22px}.about-photo{min-height:300px}.faq-q{font-size:17px}.faq-a p{padding-right:20px}.closing{padding:90px 0 100px}.footer-bottom{grid-template-columns:1fr;gap:26px}.footer-legal{justify-items:start;text-align:left}body{padding-bottom:70px}.mobile-cta{display:block;position:fixed;z-index:15;left:8px;right:8px;bottom:8px;padding:5px;border:1px solid var(--line);border-radius:9px;background:rgba(6,6,8,.97);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(calc(100% + 18px));transition:opacity .25s ease,transform .25s ease}.mobile-cta.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}.mobile-cta .btn-primary{width:100%;min-height:52px;font-size:11px}}
 @media(pointer:coarse),(hover:none){.flair{animation:none;filter:blur(64px)}.spotlight,.surface-light{transform:none!important}.spotlight:after,.surface-light:after{display:none}.os-canvas{transform:none!important}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.flair,.fline i{animation:none}.spotlight:after,.surface-light:after{display:none}.js .reveal{opacity:1;transform:none}*,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+.qz-scrim{position:fixed;inset:0;z-index:120;display:none;place-items:center;padding:20px;background:rgba(4,4,6,.74);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .3s}.qz-scrim.open{display:grid}.qz-scrim.show{opacity:1}.qz-modal{position:relative;width:min(560px,100%);max-height:min(92vh,780px);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:linear-gradient(160deg,rgba(24,23,28,.98),rgba(8,8,11,.99));box-shadow:0 40px 120px rgba(0,0,0,.6);transform:translateY(16px) scale(.98);transition:transform .3s cubic-bezier(.16,1,.3,1)}.qz-scrim.show .qz-modal{transform:none}.qz-close{position:absolute;top:15px;right:15px;z-index:2;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:rgba(6,6,8,.6);color:var(--muted);cursor:pointer;transition:.2s}.qz-close:hover,.qz-close:focus-visible{color:var(--ink);border-color:rgba(195,165,255,.42)}.qz-close svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.qz-view{display:none;flex-direction:column;min-height:0}.qz-view.show{display:flex}.qz-head{padding:26px 28px 18px;border-bottom:1px solid var(--line)}.qz-eyebrow{display:inline-flex;align-items:center;gap:9px;color:#c7c2bd;font-size:10px;font-weight:750;letter-spacing:.16em;text-transform:uppercase}.qz-eyebrow:before{content:"";width:22px;height:1px;background:linear-gradient(90deg,var(--orange),var(--purple))}.qz-head h2{margin:12px 0 6px;font:600 27px/1.05 var(--display);letter-spacing:-.045em}.qz-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.qz-body{padding:22px 28px 6px;overflow-y:auto}.qz-field{margin:0 0 20px;padding:0;border:0}.qz-field>label,.qz-legend{display:block;margin-bottom:9px;padding:0;font-size:13px;font-weight:650;color:#e7e2dd}.qz-req{color:#ff984a}.qz-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.qz-input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.03);color:var(--ink);font-size:14px;transition:border-color .2s,background .2s}.qz-input:focus{outline:none;border-color:rgba(195,165,255,.55);background:rgba(255,255,255,.05)}.qz-input::placeholder{color:var(--dim)}.qz-opts{display:grid;gap:8px}.qz-opts.row{grid-template-columns:1fr 1fr}.qz-opt{position:relative;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);color:#d6d1cd;font-size:13.5px;cursor:pointer;transition:border-color .18s,background .18s,color .18s}.qz-opt:hover{border-color:rgba(195,165,255,.34);color:var(--ink)}.qz-opt input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.qz-dot{flex:0 0 16px;width:16px;height:16px;border:1px solid var(--dim);border-radius:50%;transition:.18s}.qz-opt:has(input:checked){border-color:rgba(195,165,255,.6);background:linear-gradient(120deg,rgba(255,122,26,.1),rgba(139,92,246,.13));color:var(--ink)}.qz-opt:has(input:checked) .qz-dot{border-color:#c3a5ff;background:radial-gradient(circle,#c3a5ff 42%,transparent 48%)}.qz-opt input:focus-visible+.qz-dot{outline:2px solid #c3a5ff;outline-offset:3px}.qz-error{margin:-10px 0 14px;color:#ff9a7a;font-size:12px;display:none}.qz-error.show{display:block}.qz-foot{padding:16px 28px 24px;border-top:1px solid var(--line);display:grid;gap:11px}.qz-foot .btn-primary{width:100%}.qz-note{margin:0;text-align:center;color:var(--dim);font-size:11px}.qz-result{padding:36px 28px 28px;text-align:center}.qz-badge{width:62px;height:62px;margin:0 auto 20px;display:grid;place-items:center;border-radius:16px;border:1px solid rgba(255,152,74,.3);background:linear-gradient(135deg,rgba(255,122,26,.16),rgba(139,92,246,.18))}.qz-badge svg{width:30px;height:30px;fill:none;stroke:#ff984a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.qz-result.soft .qz-badge{border-color:rgba(139,92,246,.3)}.qz-result.soft .qz-badge svg{stroke:#b58bf8}.qz-result h3{margin:0 0 12px;font:620 26px/1.1 var(--display);letter-spacing:-.04em}.qz-result p{max-width:400px;margin:0 auto 24px;color:var(--muted);font-size:14px;line-height:1.65}.qz-result .btn-primary{width:100%}.qz-result-actions{display:grid;gap:11px}.qz-back{border:0;background:none;color:var(--dim);font-size:12px;cursor:pointer;transition:color .2s}.qz-back:hover{color:var(--muted)}@media(max-width:620px){.qz-scrim{padding:12px;align-items:flex-end}.qz-modal{max-height:94vh}.qz-head{padding:24px 20px 16px}.qz-head h2{font-size:23px}.qz-body{padding:20px 20px 4px}.qz-foot{padding:16px 20px 22px}.qz-result{padding:30px 20px 24px}.qz-grid2{grid-template-columns:1fr}}
 </style>
 <script>document.documentElement.classList.add('js')</script>
 </head>
@@ -41,6 +42,34 @@ footer{padding:76px 0 90px;color:#918c94;background:linear-gradient(180deg,trans
 </main>
 <footer><div class="container"><div class="footer-bottom"><nav class="footer-col" aria-label="Footer"><b>Explore</b><a href="#how-it-works">How it works</a><a href="#why-work-with-me">Why us</a><a href="#faq">FAQ</a></nav><div class="footer-col"><b>Get started</b><a href="https://calendly.com/bentoboi/one-on-one-meeting" target="_blank" rel="noopener">Book a Call</a></div><div class="footer-legal"><span>© 2026 Creator Lab</span></div></div></div></footer>
 <div class="mobile-cta"><a class="btn-primary" href="https://calendly.com/bentoboi/one-on-one-meeting" target="_blank" rel="noopener">Book a Call<span class="arrow" aria-hidden="true">→</span></a></div>
+<div class="qz-scrim" id="qz" role="dialog" aria-modal="true" aria-labelledby="qz-title" hidden>
+<div class="qz-modal">
+<button class="qz-close" type="button" id="qzClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+<form class="qz-view show" id="qzForm" novalidate>
+<div class="qz-head"><span class="qz-eyebrow">Quick fit check</span><h2 id="qz-title">See if we're a match</h2><p>We partner with a small number of founders. Answer a few questions so we can make sure a call is worth your time.</p></div>
+<div class="qz-body">
+<div class="qz-grid2">
+<div class="qz-field"><label for="qzName">Name <span class="qz-req">*</span></label><input class="qz-input" type="text" id="qzName" name="name" autocomplete="name" placeholder="Your name"></div>
+<div class="qz-field"><label for="qzEmail">Email <span class="qz-req">*</span></label><input class="qz-input" type="email" id="qzEmail" name="email" autocomplete="email" placeholder="you@company.com"></div>
+</div>
+<fieldset class="qz-field" data-q="biz"><legend class="qz-legend">Do you run a business that's currently generating revenue? <span class="qz-req">*</span></legend><div class="qz-opts row"><label class="qz-opt"><input type="radio" name="biz" value="yes"><span class="qz-dot" aria-hidden="true"></span>Yes</label><label class="qz-opt"><input type="radio" name="biz" value="no"><span class="qz-dot" aria-hidden="true"></span>Not yet</label></div></fieldset>
+<fieldset class="qz-field" data-q="offer"><legend class="qz-legend">Do you have an offer you actively sell to customers? <span class="qz-req">*</span></legend><div class="qz-opts row"><label class="qz-opt"><input type="radio" name="offer" value="yes"><span class="qz-dot" aria-hidden="true"></span>Yes</label><label class="qz-opt"><input type="radio" name="offer" value="no"><span class="qz-dot" aria-hidden="true"></span>Not yet</label></div></fieldset>
+<fieldset class="qz-field" data-q="camera"><legend class="qz-legend">Are you willing to show up on camera and publish consistently? <span class="qz-req">*</span></legend><div class="qz-opts row"><label class="qz-opt"><input type="radio" name="camera" value="yes"><span class="qz-dot" aria-hidden="true"></span>Yes</label><label class="qz-opt"><input type="radio" name="camera" value="no"><span class="qz-dot" aria-hidden="true"></span>No / unsure</label></div></fieldset>
+<fieldset class="qz-field" data-q="budget"><legend class="qz-legend">Monthly budget to invest in growth? <span class="qz-req">*</span></legend><div class="qz-opts"><label class="qz-opt"><input type="radio" name="budget" value="u1k"><span class="qz-dot" aria-hidden="true"></span>Under $1,000</label><label class="qz-opt"><input type="radio" name="budget" value="1-2.5k"><span class="qz-dot" aria-hidden="true"></span>$1,000 – $2,500</label><label class="qz-opt"><input type="radio" name="budget" value="2.5-5k"><span class="qz-dot" aria-hidden="true"></span>$2,500 – $5,000</label><label class="qz-opt"><input type="radio" name="budget" value="5k+"><span class="qz-dot" aria-hidden="true"></span>$5,000+</label></div></fieldset>
+<div class="qz-field"><label for="qzNiche">What does your business do / your niche? <span class="qz-req">*</span></label><input class="qz-input" type="text" id="qzNiche" name="niche" placeholder="e.g. B2B SaaS for accountants"></div>
+<fieldset class="qz-field" data-q="timeline"><legend class="qz-legend">How soon do you want to start? <span class="qz-req">*</span></legend><div class="qz-opts"><label class="qz-opt"><input type="radio" name="timeline" value="now"><span class="qz-dot" aria-hidden="true"></span>This month</label><label class="qz-opt"><input type="radio" name="timeline" value="soon"><span class="qz-dot" aria-hidden="true"></span>In the next 1–3 months</label><label class="qz-opt"><input type="radio" name="timeline" value="exploring"><span class="qz-dot" aria-hidden="true"></span>Just exploring</label></div></fieldset>
+<p class="qz-error" id="qzError">Please complete every field to continue.</p>
+</div>
+<div class="qz-foot"><button class="btn-primary" type="submit">See if I qualify<span class="arrow" aria-hidden="true">→</span></button><p class="qz-note">Takes under a minute. No spam, ever.</p></div>
+</form>
+<div class="qz-view qz-result" id="qzResult">
+<div class="qz-badge"><svg viewBox="0 0 24 24" aria-hidden="true" id="qzBadgeIcon"><path d="M20 6 9 17l-5-5"/></svg></div>
+<h3 id="qzResultTitle">You're a great fit</h3>
+<p id="qzResultText">Based on your answers, our partnership looks like a strong match. Grab a time below and let's talk.</p>
+<div class="qz-result-actions"><a class="btn-primary" id="qzBook" href="https://calendly.com/bentoboi/one-on-one-meeting" target="_blank" rel="noopener">Book your call<span class="arrow" aria-hidden="true">→</span></a><button class="qz-back" type="button" id="qzBack">← Edit my answers</button></div>
+</div>
+</div>
+</div>
 <script>
 (()=>{const reduce=matchMedia('(prefers-reduced-motion: reduce)'),coarse=matchMedia('(pointer: coarse)');
 const reveals=document.querySelectorAll('.reveal');if('IntersectionObserver'in window&&!reduce.matches){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -5% 0px',threshold:.04});reveals.forEach(e=>io.observe(e))}else reveals.forEach(e=>e.classList.add('in'));
@@ -48,5 +77,83 @@ const osWrap=document.querySelector('.os-wrap'),hero=document.querySelector('.he
 document.querySelector('.os-wrap')?.addEventListener('pointermove',e=>{if(coarse.matches||reduce.matches)return;const r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5,p=e.currentTarget.querySelector('.os-canvas');p.style.setProperty('--ry',`${x*2}deg`);p.style.setProperty('--rx',`${y*-1.5}deg`)});document.querySelector('.os-wrap')?.addEventListener('pointerleave',e=>{const p=e.currentTarget.querySelector('.os-canvas');p.style.setProperty('--ry','0deg');p.style.setProperty('--rx','0deg')});
 document.addEventListener('pointermove',e=>{if(coarse.matches||reduce.matches)return;const s=e.target.closest('.spotlight');if(!s)return;const r=s.getBoundingClientRect();s.style.setProperty('--mx',`${e.clientX-r.left}px`);s.style.setProperty('--my',`${e.clientY-r.top}px`)});
 document.querySelectorAll('.faq-q').forEach(b=>{const toggle=()=>{const item=b.closest('.faq-item'),opening=!item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>{i.classList.remove('open');const q=i.querySelector('.faq-q'),a=document.getElementById(q.getAttribute('aria-controls'));q.setAttribute('aria-expanded','false');a.setAttribute('aria-hidden','true')});if(opening){item.classList.add('open');b.setAttribute('aria-expanded','true');document.getElementById(b.getAttribute('aria-controls')).setAttribute('aria-hidden','false')}};b.addEventListener('click',toggle)});
+})();
+</script>
+<script>
+(()=>{
+const CAL='https://calendly.com/bentoboi/one-on-one-meeting';
+const scrim=document.getElementById('qz'),modal=scrim.querySelector('.qz-modal'),form=document.getElementById('qzForm'),result=document.getElementById('qzResult'),errEl=document.getElementById('qzError');
+let lastFocus=null,passedUrl=null;
+const ctas=[...document.querySelectorAll('a[href^="'+CAL+'"]')];
+const emailOk=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const prefill=(name,email)=>CAL+'?name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email);
+
+function open(){
+  // Once qualified this session, skip the gate and go straight through.
+  if(passedUrl){window.open(passedUrl,'_blank','noopener');return;}
+  lastFocus=document.activeElement;
+  showView('form');errEl.classList.remove('show');
+  scrim.hidden=false;scrim.classList.add('open');
+  document.documentElement.style.overflow='hidden';
+  requestAnimationFrame(()=>{scrim.classList.add('show');document.getElementById('qzName').focus();});
+}
+function close(){
+  scrim.classList.remove('show');
+  document.documentElement.style.overflow='';
+  const done=()=>{scrim.classList.remove('open');scrim.hidden=true;scrim.removeEventListener('transitionend',done);};
+  scrim.addEventListener('transitionend',done);setTimeout(done,360);
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+function showView(v){
+  form.classList.toggle('show',v==='form');
+  result.classList.toggle('show',v==='result');
+}
+ctas.forEach(a=>a.addEventListener('click',e=>{e.preventDefault();open();}));
+document.getElementById('qzClose').addEventListener('click',close);
+document.getElementById('qzBack').addEventListener('click',()=>{showView('form');document.getElementById('qzName').focus();});
+scrim.addEventListener('mousedown',e=>{if(e.target===scrim)close();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&scrim.classList.contains('open'))close();});
+// Simple focus trap inside the modal.
+scrim.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  const f=[...modal.querySelectorAll('button,a[href],input,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);
+  if(!f.length)return;const first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+});
+
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=document.getElementById('qzName').value.trim();
+  const email=document.getElementById('qzEmail').value.trim();
+  const niche=document.getElementById('qzNiche').value.trim();
+  const pick=n=>{const el=form.querySelector('input[name="'+n+'"]:checked');return el?el.value:'';};
+  const biz=pick('biz'),offer=pick('offer'),camera=pick('camera'),budget=pick('budget'),timeline=pick('timeline');
+  if(!name||!email||!emailOk(email)||!niche||!biz||!offer||!camera||!budget||!timeline){
+    errEl.textContent=(name&&email&&!emailOk(email))?'Please enter a valid email address.':'Please complete every field to continue.';
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+  const url=prefill(name,email);
+  document.getElementById('qzBook').href=url;
+  // Soft-fail signals: not selling / no revenue / won't publish / sub-$1k budget.
+  const qualified=biz==='yes'&&offer==='yes'&&camera==='yes'&&budget!=='u1k';
+  const title=document.getElementById('qzResultTitle'),text=document.getElementById('qzResultText'),icon=document.getElementById('qzBadgeIcon');
+  if(qualified){
+    passedUrl=url;
+    result.classList.remove('soft');
+    icon.innerHTML='<path d="M20 6 9 17l-5-5"/>';
+    title.textContent="You're a great fit";
+    text.textContent='Based on your answers, our partnership looks like a strong match. Grab a time below and let’s talk, '+name.split(' ')[0]+'.';
+  }else{
+    result.classList.add('soft');
+    icon.innerHTML='<circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/>';
+    title.textContent='This may not be the right fit yet';
+    text.textContent='Our partnership is built for founders already generating revenue with the budget to invest in growth. If you think you’re an exception, you can still book below — but we prioritize founders who match.';
+  }
+  showView('result');
+  requestAnimationFrame(()=>document.getElementById('qzBook').focus());
+});
 })();
 </script></body></html>
