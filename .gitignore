@@ -6,6 +6,8 @@ mobile-capture.mjs
 
 # Local screenshots and captures
 *.png
+# ...but the social share card is an intentional, deployed asset
+!assets/og-image.png
 
 # OS and editor files
 .DS_Store
