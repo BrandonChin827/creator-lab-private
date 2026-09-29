@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "Test-only tooling for the static site. Not deployed (see .vercelignore).",
+  "scripts": {
+    "test": "cd .. && node --test 'tests/*.test.mjs'"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

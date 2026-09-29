@@ -40,6 +40,31 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Dev-only stand-ins for the lead-magnet signup and its optional qualifier answers.
+  // Production will be Vercel functions that talk to Kit. `fail@example.com` returns
+  // 500 to test the error state.
+  if (pathname === '/api/subscribe' || pathname === '/api/qualify') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json' }).end('{"ok":false}');
+      return;
+    }
+    let raw = '';
+    for await (const chunk of req) {
+      raw += chunk;
+      if (raw.length > 10_000) break;
+    }
+    let payload;
+    try { payload = JSON.parse(raw); } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end('{"ok":false}');
+      return;
+    }
+    const failed = payload?.email === 'fail@example.com';
+    console.log(`  ✉ ${pathname.slice(5)} ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
+    res.writeHead(failed ? 500 : 200, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify({ ok: !failed }));
+    return;
+  }
+
   const rel = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, '');
   // Never serve dotfiles — .env.local holds a token and must not leak onto the LAN.
   if (rel.split(/[/\\]/).some(part => part.startsWith('.') && part.length > 1)) {
@@ -70,7 +95,7 @@ const server = createServer(async (req, res) => {
   }
 });
 
-const IGNORED = /^(\.git|\.context|node_modules|docs)/;
+const IGNORED = /^(\.git|\.context|\.superpowers|node_modules|docs|tests)/;
 let timer;
 watch(ROOT, { recursive: true }, (_event, filename) => {
   if (!filename || IGNORED.test(filename)) return;
