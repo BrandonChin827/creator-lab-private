@@ -427,18 +427,62 @@ test('every completed step is logged so drop-off can be measured', async () => {
 // ---------- Branding ----------
 
 for (const [label, url, opts] of [['landing', LANDING, {}], ['access', ACCESS, { gate: GOOD_GATE }]]) {
-  test(`${label} page shows the Portlock logo mark (gradient diamond) top-left`, async () => {
+  test(`${label} page shows the Portlock PC logo top-left`, async () => {
     const { page, context } = await open(url, opts);
+    await page.waitForFunction(() => document.querySelector('.logo img')?.complete);
     const logo = await page.evaluate(() => {
-      const mark = document.querySelector('.logo i');
-      const box = document.querySelector('.logo').getBoundingClientRect();
-      const diamond = getComputedStyle(mark, '::before');
-      return { left: box.left, top: box.top, bg: diamond.backgroundImage, w: diamond.width, text: document.querySelector('.logo').textContent.trim() };
+      const img = document.querySelector('.logo img');
+      const box = img.getBoundingClientRect();
+      return { src: img.getAttribute('src'), alt: img.alt, loaded: img.naturalWidth > 0, left: box.left, top: box.top, h: box.height, text: document.querySelector('.logo').textContent.trim() };
     });
-    assert.match(logo.bg, /linear-gradient/, 'the mark needs the gradient diamond, like the homepage');
-    assert.equal(logo.w, '11px');
+    assert.equal(logo.src, '/assets/graphics/portlock-logo.png');
+    assert.ok(logo.loaded, 'logo image must load');
     assert.ok(logo.left < 40 && logo.top < 40, `logo should sit top-left, got ${logo.left},${logo.top}`);
-    assert.equal(logo.text, 'Portlock Creative');
+    assert.ok(logo.h >= 24 && logo.h <= 48, `logo height ${logo.h}`);
+    assert.equal(logo.text, '', 'logo only, no spelled-out name');
+    assert.equal(logo.alt, 'Portlock Creative');
+    await context.close();
+  });
+}
+
+test('homepage shows the Portlock PC logo top-left, linking to the top', async () => {
+  const { page, context, errors } = await open(`${BASE}/`);
+  await page.waitForFunction(() => document.querySelector('.logo-float img')?.complete);
+  const logo = await page.evaluate(() => {
+    const link = document.querySelector('.logo-float'), img = link.querySelector('img'), box = img.getBoundingClientRect();
+    return { href: link.getAttribute('href'), label: link.getAttribute('aria-label'), src: img.getAttribute('src'), loaded: img.naturalWidth > 0, left: box.left, top: box.top, h: box.height };
+  });
+  assert.equal(logo.src, '/assets/graphics/portlock-logo.png');
+  assert.ok(logo.loaded);
+  assert.equal(logo.href, '#top');
+  assert.match(logo.label, /Portlock Creative/);
+  assert.ok(logo.left < 40 && logo.top < 40, `logo should sit top-left, got ${logo.left},${logo.top}`);
+  assert.ok(logo.h >= 24 && logo.h <= 48, `logo height ${logo.h}`);
+  assert.deepEqual(errors.filter(e => !/clickledger|tally/i.test(e)), []);
+  await context.close();
+});
+
+for (const [label, url, opts] of [['homepage', `${BASE}/`, {}], ['landing', LANDING, {}], ['access', ACCESS, { gate: GOOD_GATE }]]) {
+  test(`${label} uses the PC logo as its browser-tab icon`, async () => {
+    const { page, context } = await open(url, opts);
+    const icons = await page.evaluate(() => [...document.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"]')].map(l => `${l.rel} ${l.getAttribute('href')}`));
+    assert.ok(icons.includes('icon /assets/graphics/portlock-icon.png'), icons.join(', '));
+    assert.ok(icons.includes('apple-touch-icon /assets/graphics/portlock-icon.png'), icons.join(', '));
+    const res = await page.request.get(`${BASE}/assets/graphics/portlock-icon.png`);
+    assert.equal(res.status(), 200);
+    await context.close();
+  });
+}
+
+for (const [label, url, sel, opts] of [['homepage', `${BASE}/`, '.logo-float img', {}], ['landing', LANDING, '.logo img', {}], ['access', ACCESS, '.logo img', { gate: GOOD_GATE }]]) {
+  test(`${label} logo is smaller and softer on mobile`, async () => {
+    const { page, context } = await open(url, { ...opts, size: SIZES.mobile });
+    const m = await page.evaluate(s => {
+      const img = document.querySelector(s);
+      return { h: img.getBoundingClientRect().height, opacity: Number(getComputedStyle(img).opacity) };
+    }, sel);
+    assert.ok(m.h <= 26, `mobile logo height ${m.h}`);
+    assert.ok(m.opacity < 1, `mobile logo opacity ${m.opacity}`);
     await context.close();
   });
 }

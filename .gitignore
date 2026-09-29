@@ -8,6 +8,8 @@ mobile-capture.mjs
 *.png
 # ...but the social share card is an intentional, deployed asset
 !assets/og-image.png
+!assets/graphics/portlock-logo.png
+!assets/graphics/portlock-icon.png
 
 # OS and editor files
 .DS_Store
