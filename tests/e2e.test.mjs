@@ -489,3 +489,29 @@ for (const [label, url, sel, opts] of [['homepage', `${BASE}/`, '.logo-float img
     await context.close();
   });
 }
+
+// ---------- Privacy and Terms ----------
+
+for (const path of ['/privacy', '/terms']) {
+  for (const [label, size] of Object.entries(SIZES)) {
+    test(`${path} loads cleanly on ${label} with no overflow`, async () => {
+      const { page, context, errors } = await open(`${BASE}${path}`, { size });
+      assert.equal(await page.locator('h1').count(), 1);
+      assert.ok(await page.locator('a[href^="mailto:brandon@portlockcreative.com"]').count() > 0);
+      assert.ok((await overflow(page)) <= 0);
+      assert.deepEqual(errors, []);
+      await context.close();
+    });
+  }
+}
+
+test('every page links to Privacy and Terms, and the links resolve', async () => {
+  for (const url of [`${BASE}/`, LANDING]) {
+    const { page, context } = await open(url);
+    for (const path of ['/privacy', '/terms']) {
+      assert.ok(await page.locator(`a[href="${path}"]`).count() > 0, `${url} links to ${path}`);
+      assert.equal((await fetch(`${BASE}${path}`)).status, 200);
+    }
+    await context.close();
+  }
+});
