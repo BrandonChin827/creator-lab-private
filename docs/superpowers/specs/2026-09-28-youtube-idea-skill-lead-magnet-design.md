@@ -97,7 +97,7 @@ Every subscriber sees the same page, built from the homepage's styles and script
 
 1. A "Sent! Check your inbox, {firstName}." card with a note that the skill and
    setup steps were emailed (and to check spam or Promotions).
-2. "While you're here", then the headline "Want a whole YouTube system
+2. The headline "Want a whole YouTube system
    *built around your business?*", a short subline, and **Book a Call**.
 3. The homepage's program diagram, "How our program works", "Why us?", FAQ,
    closing CTA, and mobile sticky CTA.
