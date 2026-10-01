@@ -226,6 +226,10 @@ test('signup still works on browsers without AbortSignal.timeout (iOS 15)', asyn
 // ---------- Access page ----------
 
 const GOOD_GATE = JSON.stringify({ firstName: 'Ana', ts: 1 });
+const FOUNDER_GATE = JSON.stringify({ firstName: 'Ana', ts: 1, role: 'founder' });
+const TALLY = 'https://tally.so/r/2EdJOb';
+// Third-party scripts (Tally) may log errors when offline; only our own errors count.
+const ownErrors = errors => errors.filter(e => !/clickledger|tally/i.test(e));
 
 test('access without a signup redirects to the landing page', async () => {
   const { page, context } = await open(ACCESS);
@@ -249,32 +253,61 @@ test('a name containing HTML is shown as text, never executed', async () => {
   let dialog = false;
   page.on('dialog', d => { dialog = true; d.dismiss(); });
   await page.goto(ACCESS);
-  await page.waitForSelector('#access:not([hidden])');
-  assert.equal(await page.locator('#greet').innerText(), `You're in, ${evil}.`);
-  assert.equal(await page.locator('#greet img').count(), 0);
+  await page.waitForSelector('#main:not([hidden])');
+  assert.equal(await page.locator('#soft .greet').innerText(), `Sent! Check your inbox, ${evil}.`);
+  assert.equal(await page.locator('.greet img').count(), 0);
   assert.equal(dialog, false);
   await context.close();
 });
 
 for (const [label, size] of Object.entries(SIZES)) {
-  test(`access page renders cleanly on ${label} with no overflow`, async () => {
-    const { page, context, errors } = await open(ACCESS, { size, gate: GOOD_GATE });
-    await page.waitForSelector('#access:not([hidden])');
-    assert.equal(await page.locator('#greet').innerText(), "You're in, Ana.");
-    assert.match(await page.locator('#install-cmd').innerText(), /Install this skill: https:\/\/github\.com\/BrandonChin827\/youtube-outliers-claude-code/);
-    assert.equal(await overflow(page), 0);
-    assert.deepEqual(errors, []);
-    await context.close();
-  });
+  for (const [variant, gate] of [['pitch', FOUNDER_GATE], ['soft', GOOD_GATE]]) {
+    test(`access page (${variant}) renders cleanly on ${label} with no overflow`, async () => {
+      const { page, context, errors } = await open(ACCESS, { size, gate });
+      await page.waitForSelector('#main:not([hidden])');
+      assert.equal(await page.locator(`#${variant}`).isVisible(), true);
+      assert.equal(await page.locator(`#${variant === 'pitch' ? 'soft' : 'pitch'}`).isVisible(), false);
+      assert.equal(await overflow(page), 0);
+      assert.deepEqual(ownErrors(errors), []);
+      await context.close();
+    });
+  }
 }
 
-test('copy button puts the install prompt on the clipboard', async () => {
-  const { page, context } = await open(ACCESS, { gate: GOOD_GATE, permissions: ['clipboard-read', 'clipboard-write'] });
-  await page.waitForSelector('#access:not([hidden])');
-  await page.click('#copy');
-  await page.waitForFunction(() => document.getElementById('copy').textContent === 'Copied!');
-  const copied = await page.evaluate(() => navigator.clipboard.readText());
-  assert.equal(copied, 'Install this skill: https://github.com/BrandonChin827/youtube-outliers-claude-code');
+test('founders, coaches, and agencies get the Book a Call pitch', async () => {
+  for (const role of ['founder', 'coach', 'agency']) {
+    const { page, context } = await open(ACCESS, { gate: JSON.stringify({ firstName: 'Ana', ts: 1, role }) });
+    await page.waitForSelector('#pitch:not([hidden])');
+    assert.equal(await page.locator('#pitch .greet').innerText(), 'Sent! Check your inbox, Ana.');
+    assert.match(await page.locator('#pitch h1').innerText(), /Want a whole YouTube system\s+built around your business\?/);
+    const book = page.locator('#pitch .hero a[data-book]');
+    assert.equal(await book.getAttribute('href'), TALLY);
+    assert.equal((await book.textContent()).replace(/\s+/g, ' ').trim(), 'Book a Call→');
+    assert.equal(await page.locator('text=Install this skill').count(), 0, 'no install steps on the page');
+    await context.close();
+  }
+});
+
+test('creators and visitors with no role get the softer bridge, with no Book a Call', async () => {
+  for (const gate of [GOOD_GATE, JSON.stringify({ firstName: 'Ana', ts: 1, role: 'creator' }), JSON.stringify({ firstName: 'Ana', ts: 1, role: 'bogus' })]) {
+    const { page, context } = await open(ACCESS, { gate });
+    await page.waitForSelector('#soft:not([hidden])');
+    assert.equal(await page.locator('#soft .greet').innerText(), 'Sent! Check your inbox, Ana.');
+    assert.equal(await page.locator('a[data-book]:visible').count(), 0);
+    await context.close();
+  }
+});
+
+test('Book a Call clicks are tracked', async () => {
+  const { page, context } = await open(ACCESS, { gate: FOUNDER_GATE });
+  await page.waitForSelector('#pitch:not([hidden])');
+  await page.evaluate(() => {
+    window.Tally = { openPopup() {} }; // stand-in so the click opens the "popup" instead of navigating
+    document.querySelector('#pitch .hero a[data-book]').click();
+  });
+  const names = await page.evaluate(() => portlockEvents.map(e => e.name));
+  assert.ok(names.includes('call_clicked'), names.join(', '));
+  assert.deepEqual(await page.evaluate(() => portlockEvents.find(e => e.name === 'access_viewed').props), { variant: 'pitch' });
   await context.close();
 });
 
@@ -282,12 +315,12 @@ test('full flow: UTMs from the landing page carry onto the Portlock CTA', async 
   const { page, context } = await open(`${LANDING}?utm_source=yt&utm_campaign=test`);
   await signUp(page);
   await Promise.all([page.waitForURL(ACCESS), page.click(`${step(3)} .skip`)]);
-  await page.waitForSelector('#access:not([hidden])');
-  assert.equal(await page.locator('#greet').innerText(), "You're in, Ana.");
+  await page.waitForSelector('#soft:not([hidden])');
+  assert.equal(await page.locator('#soft .greet').innerText(), 'Sent! Check your inbox, Ana.');
   const href = await page.locator('#offer').getAttribute('href');
   assert.equal(href, '/?utm_source=yt&utm_campaign=test');
   const label = (await page.locator('#offer').textContent()).replace(/\s+/g, ' ').trim();
-  assert.equal(label, 'See How Portlock Creative Works →');
+  assert.equal(label, 'See How Portlock Creative Works→');
   await context.close();
 });
 
@@ -305,7 +338,7 @@ test('with browser storage blocked, a new subscriber still sees the access page'
   await page.goto(LANDING);
   await signUp(page);
   await Promise.all([page.waitForURL(ACCESS), page.click(`${step(3)} .skip`)]);
-  await page.waitForSelector('#access:not([hidden])');
+  await page.waitForSelector('#main:not([hidden])');
   assert.deepEqual(errors, []);
   await context.close();
 });
@@ -313,7 +346,7 @@ test('with browser storage blocked, a new subscriber still sees the access page'
 // WCAG AA: small text needs a 4.5:1 contrast ratio against the page background.
 test('consent, footer, and label text meet WCAG AA contrast', async () => {
   const { page, context } = await open(ACCESS, { gate: GOOD_GATE });
-  await page.waitForSelector('#access:not([hidden])');
+  await page.waitForSelector('#main:not([hidden])');
   const landing = await context.newPage();
   await landing.goto(LANDING);
   const ratios = async (pg, selectors) => pg.evaluate(sels => {
@@ -330,7 +363,7 @@ test('consent, footer, and label text meet WCAG AA contrast', async () => {
   }, selectors);
   const results = {
     ...(await ratios(landing, ['.consent', '.consent a', 'footer', '.stepnum'])),
-    ...(await ratios(page, ['.muted', 'footer a'])),
+    ...(await ratios(page, ['#soft .sent-note', '#soft .closing-inner p', 'footer'])),
   };
   for (const [sel, ratio] of Object.entries(results)) {
     assert.ok(ratio >= 4.5, `${sel} contrast ${ratio.toFixed(2)} < 4.5`);
@@ -378,6 +411,7 @@ test('answering every question sends cumulative answers and opens access', async
     { youtube: 'posting', role: 'founder', channel: '@ana' },
   ]);
   assert.ok(qualifies.every(q => q.email === 'ana@example.com' && q.token === 'dev-token'));
+  await page.waitForSelector('#pitch:not([hidden])'); // a founder lands on the Book a Call pitch
   await context.close();
 });
 
@@ -391,6 +425,7 @@ test('"Not yet" skips the channel question', async () => {
   await Promise.all([page.waitForURL(ACCESS), page.click(`${step(4)} [data-value="creator"]`)]);
   await watcher;
   assert.equal(sawStep5, false);
+  await page.waitForSelector('#soft:not([hidden])'); // a creator gets the softer bridge
   await context.close();
 });
 

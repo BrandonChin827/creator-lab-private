@@ -22,6 +22,11 @@ let current = 1;
 let email = '';
 let token = ''; // from /api/subscribe; lets the answers below update this subscriber
 const answers = {};
+const gate = {}; // what the access page reads: first name, and role once answered
+
+function saveGate() {
+  try { localStorage.setItem(GATE_KEY, JSON.stringify(gate)); } catch {}
+}
 
 function readStoredUtms() {
   try { return JSON.parse(sessionStorage.getItem(UTM_STORE_KEY)) || {}; } catch { return {}; }
@@ -104,7 +109,8 @@ form.addEventListener('submit', async e => {
   }
 
   if (ok) {
-    try { localStorage.setItem(GATE_KEY, JSON.stringify({ firstName, ts: Date.now() })); } catch {}
+    Object.assign(gate, { firstName, ts: Date.now() });
+    saveGate();
     if (isBot) return location.assign(ACCESS_URL);
     email = emailInput.value.trim();
     track('optin_step', { step: 2, field: 'email' });
@@ -138,6 +144,7 @@ function toAccess() {
 function answer(field, value) {
   answers[field] = value;
   sendAnswers();
+  if (field === 'role') { gate.role = value; saveGate(); } // picks the access page's pitch
   track('optin_step', { step: current, field });
   // No channel to ask about when they don't have one yet.
   if (current === 3 || (current === 4 && answers.youtube !== 'none')) goToStep(current + 1);

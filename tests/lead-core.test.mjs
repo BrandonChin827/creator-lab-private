@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   validateFirstName, validateLastName, validateEmail, parseUtms, mergeUtms, appendUtms,
-  readGate, track, GATE_KEY, UTM_STORE_KEY,
+  readGate, isQualified, track, GATE_KEY, UTM_STORE_KEY,
 } from '../youtube-idea-skill/lead-core.mjs';
 
 test('first name is required, trimmed, and capped at 60 characters', () => {
@@ -57,7 +57,17 @@ test('readGate returns the stored first name only for a well-formed value', () =
   for (const raw of [null, '', 'garbage', '[]', 'null', '{"firstName":1,"ts":1}', '{"firstName":"Ana"}']) {
     assert.equal(readGate(raw), null, `${raw} should not open the gate`);
   }
-  assert.deepEqual(readGate('{"firstName":"Ana","ts":1}'), { firstName: 'Ana' });
+  assert.deepEqual(readGate('{"firstName":"Ana","ts":1}'), { firstName: 'Ana', role: '' });
+});
+
+test('readGate keeps a known role and drops anything else', () => {
+  assert.deepEqual(readGate('{"firstName":"Ana","ts":1,"role":"founder"}'), { firstName: 'Ana', role: 'founder' });
+  assert.deepEqual(readGate('{"firstName":"Ana","ts":1,"role":"ceo"}'), { firstName: 'Ana', role: '' });
+});
+
+test('founders, coaches, and agencies qualify for the call pitch', () => {
+  for (const role of ['founder', 'coach', 'agency']) assert.equal(isQualified(role), true, role);
+  for (const role of ['creator', '', undefined]) assert.equal(isQualified(role), false, String(role));
 });
 
 test('track records events on globalThis.portlockEvents', () => {

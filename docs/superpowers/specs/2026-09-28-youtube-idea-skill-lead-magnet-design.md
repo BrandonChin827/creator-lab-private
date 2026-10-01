@@ -90,20 +90,23 @@ Visual language: the flagship tokens (`--bg #060608`, `--ink`, `--orange #ff7a1a
 
 ### Access page
 
-Shown only after a successful signup (see Gating). Contents:
+Shown only after a successful signup (see Gating). The email delivers the skill and
+the install steps, so this page sells Portlock Creative instead. It uses the homepage's
+styles and scripts (`/assets/site.css`, `/assets/site.js`) and has two versions,
+chosen by the role answer from step 4 (revised 2026-09-30):
 
-1. "You're in, {firstName}. Here's your skill." (Uses "You're in." if no name is stored.)
-2. **Install in one line:** the install prompt from the README with a Copy button:
-   `Install this skill: https://github.com/BrandonChin827/youtube-outliers-claude-code`,
-   plus a link to the repo and a collapsible manual install command.
-3. **What you'll need:** Claude Code and a ScrapeCreators account (linked). Setup
-   takes about 2 minutes in chat, and Claude states the credit cost before any scan.
-4. **Three prompts to try:** `/youtube-outliers`, "Run a report for the last 3 months",
-   and "add @somecreator".
-5. **Soft bridge:** "The Skill helps you develop stronger ideas. Portlock Creative
-   builds the complete system around them, including positioning, packaging,
-   scripts, editing, and ongoing optimization." → **See How Portlock Creative Works**
-   (`/`, with the stored UTMs appended).
+- **Pitch, for Founder, Coach or consultant, and Agency:** the homepage layout.
+  An inbox pill ("You're in, {firstName}. Check your inbox for your skill."), the
+  headline "Want a whole YouTube system *built around your business?*", a short
+  subline, and **Book a Call**, followed by the homepage's program diagram, "How our
+  program works", "Why us?", FAQ, closing CTA, and mobile sticky CTA. Every
+  Book a Call button opens the Tally screener popup (`2EdJOb`), which hands
+  qualified people to Calendly. If the popup can't load, the link opens the full Tally page.
+- **Soft, for Creator, a skipped step 4, or blocked storage:** "You're in, {firstName}.",
+  a note that the skill is in their inbox, and a card with the same headline that
+  links to **See How Portlock Creative Works** (`/`, with the stored UTMs appended).
+
+There are no install steps on the page.
 
 ## Behaviour
 
@@ -144,7 +147,7 @@ The dev server mocks this route the same way as `/api/subscribe`.
 ### Gating (soft)
 
 After a successful submission, `localStorage` stores
-`portlock.ytSkill = { firstName, ts }`. The access page checks this flag first and
+`portlock.ytSkill = { firstName, ts }`, and adds `role` when step 4 is answered. The access page checks this flag first and
 redirects to the landing page if it is missing. The repo is public, and the email
 also delivers the skill, so a soft gate is enough.
 
@@ -159,7 +162,7 @@ Portlock CTA on the access page.
 `track(name, props)` in `lead-core.mjs` is a no-op hook until a provider is chosen. Events:
 `optin_step` (`{ step, field }`, logged each time a step is completed, so drop-off
 can be measured per step), `optin_submitted`, `optin_failed`, `qualify_skipped`
-(`{ step }`), `qualify_completed`, `access_viewed`, `install_copied`, `offer_clicked`.
+(`{ step }`), `qualify_completed`, `access_viewed` (`{ variant }`), `call_clicked`, `offer_clicked`.
 
 ## Accessibility and responsiveness
 
