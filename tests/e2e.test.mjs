@@ -73,7 +73,7 @@ async function signUp(page, name = 'Ana', email = 'ana@example.com') {
 for (const [label, size] of Object.entries(SIZES)) {
   test(`landing loads cleanly on ${label} with no overflow`, async () => {
     const { page, context, errors } = await open(LANDING, { size });
-    assert.equal(await page.locator('h1').innerText(), "Find What's Breaking Out in Your Niche. Make It Your Next Video.");
+    assert.equal(await page.locator('h1').innerText(), "Find Viral Topics in Your Niche. Never Run Out of Video Ideas Again.");
     assert.ok(await page.locator('#firstName').isVisible());
     assert.equal(await overflow(page), 0);
     assert.deepEqual(errors, []);
