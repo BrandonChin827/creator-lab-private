@@ -52,16 +52,11 @@ export function appendUtms(href, utms) {
   return path + (qs ? `?${qs}` : '') + (hash ? `#${hash}` : '');
 }
 
-// Roles from the "What best describes you?" step. Qualified roles get the Book a Call pitch.
-export const ROLES = ['founder', 'coach', 'creator', 'agency'];
-const QUALIFIED_ROLES = ['founder', 'coach', 'agency'];
-export const isQualified = role => QUALIFIED_ROLES.includes(role);
-
 export function readGate(raw) {
   try {
     const value = JSON.parse(raw);
     if (value && typeof value === 'object' && typeof value.firstName === 'string' && typeof value.ts === 'number') {
-      return { firstName: value.firstName, role: ROLES.includes(value.role) ? value.role : '' };
+      return { firstName: value.firstName };
     }
   } catch {}
   return null;

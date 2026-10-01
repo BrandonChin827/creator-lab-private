@@ -91,22 +91,20 @@ Visual language: the flagship tokens (`--bg #060608`, `--ink`, `--orange #ff7a1a
 ### Access page
 
 Shown only after a successful signup (see Gating). The email delivers the skill and
-the install steps, so this page sells Portlock Creative instead. It uses the homepage's
-styles and scripts (`/assets/site.css`, `/assets/site.js`) and has two versions,
-chosen by the role answer from step 4 (revised 2026-09-30):
+the install steps, so this page sells Portlock Creative instead (revised 2026-09-30).
+Every subscriber sees the same page, built from the homepage's styles and scripts
+(`/assets/site.css`, `/assets/site.js`):
 
-- **Pitch, for Founder, Coach or consultant, and Agency:** the homepage layout.
-  An inbox pill ("You're in, {firstName}. Check your inbox for your skill."), the
-  headline "Want a whole YouTube system *built around your business?*", a short
-  subline, and **Book a Call**, followed by the homepage's program diagram, "How our
-  program works", "Why us?", FAQ, closing CTA, and mobile sticky CTA. Every
-  Book a Call button opens the Tally screener popup (`2EdJOb`), which hands
-  qualified people to Calendly. If the popup can't load, the link opens the full Tally page.
-- **Soft, for Creator, a skipped step 4, or blocked storage:** "You're in, {firstName}.",
-  a note that the skill is in their inbox, and a card with the same headline that
-  links to **See How Portlock Creative Works** (`/`, with the stored UTMs appended).
+1. A "Sent! Check your inbox, {firstName}." card with a note that the skill and
+   setup steps were emailed (and to check spam or Promotions).
+2. "While you're here", then the headline "Want a whole YouTube system
+   *built around your business?*", a short subline, and **Book a Call**.
+3. The homepage's program diagram, "How our program works", "Why us?", FAQ,
+   closing CTA, and mobile sticky CTA.
 
-There are no install steps on the page.
+Every Book a Call button opens the Tally screener popup (`2EdJOb`), which hands
+qualified people to Calendly. If the popup can't load, the link opens the full Tally
+page. There are no install steps on the page.
 
 ## Behaviour
 
@@ -147,22 +145,21 @@ The dev server mocks this route the same way as `/api/subscribe`.
 ### Gating (soft)
 
 After a successful submission, `localStorage` stores
-`portlock.ytSkill = { firstName, ts }`, and adds `role` when step 4 is answered. The access page checks this flag first and
+`portlock.ytSkill = { firstName, ts }`. The access page checks this flag first and
 redirects to the landing page if it is missing. The repo is public, and the email
 also delivers the skill, so a soft gate is enough.
 
 ### UTMs
 
 When someone lands, `utm_*` parameters from the URL are saved in `sessionStorage`,
-and the first values win. They are sent with the submission and appended to the
-Portlock CTA on the access page.
+and the first values win. They are sent with the submission.
 
 ### Analytics
 
 `track(name, props)` in `lead-core.mjs` is a no-op hook until a provider is chosen. Events:
 `optin_step` (`{ step, field }`, logged each time a step is completed, so drop-off
 can be measured per step), `optin_submitted`, `optin_failed`, `qualify_skipped`
-(`{ step }`), `qualify_completed`, `access_viewed` (`{ variant }`), `call_clicked`, `offer_clicked`.
+(`{ step }`), `qualify_completed`, `access_viewed`, `call_clicked`.
 
 ## Accessibility and responsiveness
 
