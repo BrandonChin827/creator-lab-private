@@ -62,7 +62,8 @@ function kit(env, fetchImpl) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Kit-Api-Key': env.KIT_API_KEY },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(8000),
+      // Signup makes two Kit calls in a row; 2 × 5s stays inside the browser's 15s wait.
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`Kit ${path} → HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
   };
