@@ -16,7 +16,10 @@ const SIZES = { mobile: { width: 390, height: 844 }, desktop: { width: 1440, hei
 let server, browser;
 
 before(async () => {
-  server = spawn(process.execPath, ['dev-server.mjs', String(PORT)], { cwd: ROOT, stdio: 'ignore' });
+  // KIT_API_KEY is blanked so the suite always uses the mock and never creates real Kit subscribers.
+  server = spawn(process.execPath, ['dev-server.mjs', String(PORT)], {
+    cwd: ROOT, stdio: 'ignore', env: { ...process.env, KIT_API_KEY: '' },
+  });
   for (let i = 0; i < 50; i++) {
     try { await fetch(BASE); break; } catch { await new Promise(r => setTimeout(r, 100)); }
   }
@@ -374,7 +377,7 @@ test('answering every question sends cumulative answers and opens access', async
     { youtube: 'posting', role: 'founder' },
     { youtube: 'posting', role: 'founder', channel: '@ana' },
   ]);
-  assert.ok(qualifies.every(q => q.email === 'ana@example.com'));
+  assert.ok(qualifies.every(q => q.email === 'ana@example.com' && q.token === 'dev-token'));
   await context.close();
 });
 
