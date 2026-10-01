@@ -40,9 +40,10 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Dev-only stand-ins for the lead-magnet signup and its optional qualifier answers.
-  // Production will be Vercel functions that talk to Kit. `fail@example.com` returns
-  // 500 to test the error state.
+  // Lead-magnet signup and its optional qualifier answers. With KIT_API_KEY set
+  // (`node --env-file=.env.local dev-server.mjs`) these run the real api/ handlers
+  // against Kit. Otherwise they're mocks: they log the payload and `fail@example.com`
+  // returns 500 to test the error state.
   if (pathname === '/api/subscribe' || pathname === '/api/qualify') {
     if (req.method !== 'POST') {
       res.writeHead(405, { 'Content-Type': 'application/json' }).end('{"ok":false}');
@@ -53,6 +54,15 @@ const server = createServer(async (req, res) => {
       raw += chunk;
       if (raw.length > 10_000) break;
     }
+    if (process.env.KIT_API_KEY) {
+      const { handleSubscribe, handleQualify } = await import('./api/_lead.mjs');
+      const handle = pathname === '/api/subscribe' ? handleSubscribe : handleQualify;
+      const response = await handle(new Request(`http://localhost${pathname}`, { method: 'POST', body: raw }));
+      const text = await response.text();
+      console.log(`  ✉ ${pathname.slice(5)} → Kit ${response.status} ${text.replace(/"token":"[^"]*"/, '"token":"…"')}`);
+      res.writeHead(response.status, { 'Content-Type': 'application/json' }).end(text);
+      return;
+    }
     let payload;
     try { payload = JSON.parse(raw); } catch {
       res.writeHead(400, { 'Content-Type': 'application/json' }).end('{"ok":false}');
@@ -61,7 +71,7 @@ const server = createServer(async (req, res) => {
     const failed = payload?.email === 'fail@example.com';
     console.log(`  ✉ ${pathname.slice(5)} ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
     res.writeHead(failed ? 500 : 200, { 'Content-Type': 'application/json' })
-      .end(JSON.stringify({ ok: !failed }));
+      .end(JSON.stringify(failed ? { ok: false } : { ok: true, token: 'dev-token' }));
     return;
   }
 
@@ -112,6 +122,7 @@ const lanIp = Object.values(networkInterfaces())
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  Creator Lab dev server — live reload on\n`);
+  console.log(`  Signup API: ${process.env.KIT_API_KEY ? 'LIVE — signups go to Kit' : 'mock (no Kit)'}\n`);
   console.log(`  Desktop:  http://localhost:${PORT}/`);
   if (lanIp) console.log(`  Phone:    http://${lanIp}:${PORT}/   (same Wi-Fi)`);
   console.log(`\n  Watching for changes. Ctrl+C to stop.\n`);

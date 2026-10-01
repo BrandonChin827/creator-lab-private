@@ -20,6 +20,7 @@ const submitLabel = submit.innerHTML;
 let sending = false;
 let current = 1;
 let email = '';
+let token = ''; // from /api/subscribe; lets the answers below update this subscriber
 const answers = {};
 
 function readStoredUtms() {
@@ -71,7 +72,7 @@ async function subscribe(payload) {
     signal: AbortSignal.timeout?.(15000), // missing on iOS 15
   });
   const data = await res.json().catch(() => null);
-  return res.ok && data?.ok === true;
+  return res.ok && data?.ok === true ? data : null;
 }
 
 form.addEventListener('submit', async e => {
@@ -89,7 +90,7 @@ form.addEventListener('submit', async e => {
   let ok = isBot;
   if (!isBot) {
     try {
-      ok = await subscribe({
+      const data = await subscribe({
         firstName,
         lastName: lastInput.value.trim(),
         email: emailInput.value.trim(),
@@ -97,6 +98,8 @@ form.addEventListener('submit', async e => {
         referrer: document.referrer,
         page: location.origin + location.pathname,
       });
+      ok = Boolean(data);
+      token = data?.token || '';
     } catch {}
   }
 
@@ -123,7 +126,7 @@ function sendAnswers() {
   fetch('/api/qualify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, answers }),
+    body: JSON.stringify({ email, token, answers }),
     keepalive: true,
   }).catch(() => {});
 }
