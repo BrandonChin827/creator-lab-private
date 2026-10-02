@@ -73,8 +73,8 @@ Section order follows MediaFlow:
    followers across platforms". Client result screenshots are added here only if
    Brandon supplies real ones.
 5. **FAQs.** An accordion with 6 questions:
-   - *How long does the video take?* "Usually about a week after you send us your
-     footage." (Brandon to confirm the turnaround.)
+   - *How long does the video take?* "Usually 3 to 7 days after you send us your
+     footage, depending on how complex the video is."
    - *What if I don't want to work with you after the free video?* "No hard feelings.
      You keep the video and can post it on your channel."
    - *What's the catch?* "No catch. We make one video for free, and if it makes sense,
@@ -97,9 +97,10 @@ The landing page is indexable at launch, with its own title, description, and OG
 `noindex`. It reads the result saved by the form (see Gating) and shows one of two
 outcomes:
 
-- **Qualified:** "You qualify, {firstName}! Pick a time for your 15-min call." Below it
-  is the Calendly inline embed for Brandon's 15-minute event, with name and email
-  pre-filled through Calendly's `name` and `email` URL parameters.
+- **Qualified:** "You qualify, {firstName}! Pick a time for your 15 min call." Below it
+  is the Calendly inline embed for Brandon's 15 minute event
+  (`https://calendly.com/bentoboi/youtube-vide-strategy-consultation`), with name and
+  email pre-filled through Calendly's `name` and `email` URL parameters.
 - **Not qualified:** "Thanks, {firstName}. We'll review your application and get back
   to you by email."
 
@@ -151,7 +152,8 @@ matching PR #2.
   gets `ok`.
 - **Kit:** create or update the subscriber (first name, `last_name`, `youtube_channel`,
   `utm_*` fields), then add the tag **free-video-applicant**, plus
-  **free-video-qualified** when qualified. No form, so no skill email. Before launch,
+  **free-video-qualified** when qualified. The tag IDs come from the env vars
+  `KIT_TAG_APPLICANT` and `KIT_TAG_QUALIFIED`. No form, so no skill email. Before launch,
   check that no existing Kit automation fires for these subscribers.
 
 ### Notion database: "Free Video Applications"
@@ -162,9 +164,9 @@ matching PR #2.
 | Email | Email |
 | Status | Select: New (default), Call booked, Video made, Client, Not a fit |
 | Qualified | Checkbox |
-| YouTube experience, Revenue business, Has offer, On camera, Budget | Select |
+| YouTube experience, Revenue business, Has offer, On camera, Budget | Select (Notion doesn't allow commas in select options, so Budget is stored as Under $1k, $1k–$2.5k, $2.5k–$5k, $5k+) |
 | Niche, Why | Text |
-| Channel | URL |
+| Channel | Text (so "@handle" works as well as a link) |
 | ClickLedger ID, UTM source, UTM campaign, UTM content | Text |
 | Applied | Date |
 | Owner | Person (set to Brandon) |
@@ -202,7 +204,7 @@ link isn't secret.
 ## Other changes
 
 - **Privacy page:** add Notion to the list of services ("Notion (storing
-  applications)").
+  applications)"), and add business details from applications to "What we collect".
 - **Rate limit:** the Hobby plan allows one Vercel Firewall rate-limit rule. Extend the
   existing "Signup rate limit" rule (5 requests per IP per 600s) to cover
   `/api/apply` as well as `/api/subscribe`.
@@ -217,7 +219,7 @@ immediately, so merging is the launch. Before merging:
 1. Notion database created and the integration connected; Vercel env vars set for
    Production and Preview.
 2. Kit tags created; no existing automation fires.
-3. Calendly 15-min event link in place; ClickLedger Calendly webhook connected.
+3. ClickLedger Calendly webhook connected.
 4. A preview-deploy test of both outcomes: Notion row, Kit tags, Calendly booking,
    and the ClickLedger events all check out.
 5. Brandon says launch.
@@ -234,8 +236,6 @@ immediately, so merging is the launch. Before merging:
 
 ## Inputs still needed from Brandon
 
-- Calendly 15-min event link.
-- Confirm the video turnaround for the first FAQ answer.
 - Optional: social links for the footer, and real client screenshots for the proof
   section.
 
