@@ -42,7 +42,7 @@ are exported from the Free Video files and imported, not duplicated. Run
 - `tests/free-audit.e2e.test.mjs` mirroring `free-video.e2e.test.mjs`.
 
 ## Task 7 — Live setup (with Brandon, step by step)
-1. Brandon creates the 30 min Calendly event (slug `youtube-channel-audit`, or send the link).
+1. Brandon creates the 30 min Calendly event (`bentoboi/youtube-consultation`).
 2. Create the Notion DB "Channel Audit Applications" with the spec's columns (Status is a
    plain Select) and share it with the "Portlock Site" connection.
 3. Create Kit tags `audit-applicant` and `audit-qualified`.

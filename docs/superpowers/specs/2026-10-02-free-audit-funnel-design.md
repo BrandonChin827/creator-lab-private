@@ -104,9 +104,8 @@ reviewed by hand from Notion.
   `audit-applicant` (`KIT_TAG_AUDIT_APPLICANT`), plus `audit-qualified`
   (`KIT_TAG_AUDIT_QUALIFIED`) when qualified. No form. A Kit failure is logged only.
 
-Calendly: a new 30-minute event Brandon creates. The code expects
-`https://calendly.com/bentoboi/youtube-channel-audit`; update `CALENDLY_URL` in
-`audit-core.mjs` if the slug differs.
+Calendly: Brandon's 30-minute event `https://calendly.com/bentoboi/youtube-consultation`
+(`CALENDLY_URL` in `free-audit/audit-core.mjs`).
 
 The privacy page line becomes "if you apply for a free video or channel audit".
 

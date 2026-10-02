@@ -205,7 +205,7 @@ test('qualified applicants see the 30 min audit Calendly with name and email fil
   const { page, context, errors } = await open(NEXT, { init: saveResult(RESULT()) });
   assert.equal(await page.locator('h1').innerText(), 'You qualify, Ana!\nPick a time for your 30 min audit call.');
   const url = new URL(await page.locator('#cal').getAttribute('data-url'));
-  assert.equal(url.pathname, '/bentoboi/youtube-channel-audit');
+  assert.equal(url.pathname, '/bentoboi/youtube-consultation');
   assert.equal(url.searchParams.get('name'), 'Ana Diaz');
   assert.equal(url.searchParams.get('email'), 'ana@example.com');
   assert.ok(await page.locator('#cal').isVisible());

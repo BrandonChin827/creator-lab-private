@@ -6,7 +6,7 @@ import { CHOICES as VIDEO_CHOICES, validateNiche, text, calendlyUrl as videoCale
 
 export { validateNiche, readResult };
 export const RESULT_KEY = 'portlock.freeAudit';
-export const CALENDLY_URL = 'https://calendly.com/bentoboi/youtube-channel-audit';
+export const CALENDLY_URL = 'https://calendly.com/bentoboi/youtube-consultation';
 export const LIMITS = { channel: 200, niche: 200, challenge: 1000, source: 200 };
 const MAX_CKID = 100;
 const MAX_UTM = 200;
