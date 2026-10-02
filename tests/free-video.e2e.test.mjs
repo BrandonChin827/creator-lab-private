@@ -326,3 +326,9 @@ test('the thank-you page has the ClickLedger snippet and is not indexed', async 
   assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex');
   await context.close();
 });
+
+test('the privacy page mentions Notion and the application answers', async () => {
+  const html = await (await fetch(`${BASE}/privacy`)).text();
+  assert.match(html, /Notion \(storing applications\)/);
+  assert.match(html, /budget/);
+});
