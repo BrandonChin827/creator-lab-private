@@ -53,3 +53,61 @@ test('homepage still loads without errors after the site.js guard', async () => 
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+// A fresh page with third-party scripts blocked, recording errors and /api/apply requests.
+async function open(url, { size = SIZES.desktop, init } = {}) {
+  const context = await browser.newContext({ viewport: size });
+  context.setDefaultTimeout(5000);
+  await context.route(/clickledger\.io|calendly\.com/, route => route.abort());
+  if (init) await context.addInitScript(init);
+  const page = await context.newPage();
+  const errors = [];
+  const applies = [];
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('request', r => { if (r.url().endsWith('/api/apply')) applies.push(r); });
+  await page.goto(url);
+  return { page, context, errors, applies };
+}
+
+const overflow = page => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+
+for (const [label, size] of Object.entries(SIZES)) {
+  test(`landing loads cleanly on ${label} with no overflow`, async () => {
+    const { page, context, errors } = await open(LANDING, { size });
+    assert.equal(await page.locator('h1').innerText(), 'Get a $1,000 YouTube Video\n& Content Plan for Free');
+    assert.ok(await page.locator('#firstName').isVisible());
+    assert.equal(await overflow(page), 0);
+    assert.deepEqual(ownErrors(errors), []);
+    await context.close();
+  });
+}
+
+test('landing has the how-it-works steps, the two real stats, and six FAQs', async () => {
+  const { page, context } = await open(LANDING);
+  assert.deepEqual(await page.locator('.ts h3').allInnerTexts(),
+    ['Quick 15 min call', 'Strategy & content blueprint', 'You film', 'Video reveal']);
+  assert.deepEqual(await page.locator('.stat b').allInnerTexts(), ['7 figures', '300k+']);
+  assert.equal(await page.locator('.faq-item').count(), 6);
+  assert.equal(await page.locator('.faq-item.open').count(), 1);
+  await page.locator('.faq-q').nth(2).click();
+  assert.ok(await page.locator('.faq-item').nth(2).evaluate(e => e.classList.contains('open')));
+  assert.match(await page.locator('#fa1').innerText(), /3 to 7 days/);
+  await context.close();
+});
+
+test('See If You Qualify jumps to the form', async () => {
+  const { page, context } = await open(LANDING);
+  assert.equal(await page.locator('.hero .btn-primary').getAttribute('href'), '#apply');
+  assert.equal(await page.locator('#apply #apply-form').count(), 1);
+  await context.close();
+});
+
+test('landing carries the ClickLedger snippet, links Privacy and Terms, and is indexable', async () => {
+  const { page, context } = await open(LANDING);
+  assert.equal(await page.locator('script[src="https://www.clickledger.io/track.js"]').getAttribute('data-token'), 'cmt0v4wd90001la04k78fpg3j');
+  for (const path of ['/privacy', '/terms']) assert.ok(await page.locator(`a[href="${path}"]`).count() > 0, path);
+  assert.equal(await page.locator('meta[name="robots"]').count(), 0);
+  assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://portlockcreative.com/free-video/');
+  await context.close();
+});
