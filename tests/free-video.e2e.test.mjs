@@ -34,11 +34,11 @@ after(async () => {
 });
 
 const post = body => fetch(`${BASE}/api/apply`, { method: 'POST', body: JSON.stringify(body) });
-const QUALIFIED = { firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com', business: 'yes', offer: 'yes', camera: 'yes', budget: '1k' };
+const QUALIFIED = { firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com', offer: 'yes', camera: 'yes', budget: '1500', film: 'week', share: 'both' };
 
 test('dev /api/apply mock answers qualified, not qualified, and forced failure', async () => {
   assert.deepEqual(await (await post(QUALIFIED)).json(), { ok: true, qualified: true });
-  assert.deepEqual(await (await post({ ...QUALIFIED, budget: 'under1k' })).json(), { ok: true, qualified: false });
+  assert.deepEqual(await (await post({ ...QUALIFIED, budget: 'under1500' })).json(), { ok: true, qualified: false });
   const failed = await post({ ...QUALIFIED, email: 'fail@example.com' });
   assert.equal(failed.status, 500);
   assert.equal((await fetch(`${BASE}/api/apply`)).status, 405);
@@ -118,19 +118,19 @@ const nextButton = n => `#apply-form .step[data-step="${n}"] button[type="submit
 
 // Fills every step up to (not including) Submit. Pass overrides to change answers.
 async function fillApplication(page, o = {}) {
-  const a = { first: 'Ana', last: 'Diaz', email: 'ana@example.com', youtube: 'zero', business: 'yes', offer: 'yes', camera: 'yes', budget: '1k', niche: 'Fitness coaching', ...o };
+  const a = { first: 'Ana', last: 'Diaz', email: 'ana@example.com', youtube: 'zero', offer: 'yes', camera: 'yes', budget: '1500', film: 'week', share: 'both', niche: 'Fitness coaching', ...o };
   await page.fill('#firstName', a.first);
   await page.fill('#lastName', a.last);
   await page.click(nextButton(1));
   await page.fill('#email', a.email);
   await page.click(nextButton(2));
-  for (const field of ['youtube', 'business', 'offer', 'camera', 'budget']) {
+  for (const field of ['youtube', 'offer', 'camera', 'budget', 'film', 'share']) {
     await page.click(`.choice[data-field="${field}"][data-value="${a[field]}"]`);
   }
   await page.fill('#niche', a.niche);
 }
 
-test('the form walks through eight steps with the progress bar following', async () => {
+test('the form walks through nine steps with the progress bar following', async () => {
   const { page, context } = await open(LANDING);
   assert.equal(await visibleStep(page), '1');
   await page.fill('#firstName', 'Ana');
@@ -143,6 +143,10 @@ test('the form walks through eight steps with the progress bar following', async
   assert.equal(await page.locator('.progress').getAttribute('aria-valuenow'), '3');
   await page.click('.choice[data-value="zero"]');
   assert.equal(await visibleStep(page), '4');
+  assert.equal(await page.locator('[data-step="4"] h2').innerText(), "Do you have an offer you're selling?");
+  assert.equal(await page.locator('.progress').getAttribute('aria-valuemax'), '9');
+  assert.equal(await page.locator('[data-step="9"] .stepnum').textContent(), 'Step 9 of 9');
+  assert.equal(await page.locator('[data-step="9"] h2').textContent(), 'Tell us about your channel');
   await context.close();
 });
 
@@ -171,9 +175,10 @@ test('empty names, a bad email, and an empty niche show errors and send nothing'
 test('Back keeps earlier answers and marks the chosen option', async () => {
   const { page, context } = await open(LANDING);
   await fillApplication(page);
+  await page.locator('[data-step="9"] .back').click();
+  assert.equal(await visibleStep(page), '8');
+  assert.equal(await page.locator('.choice[data-field="share"][data-value="both"]').getAttribute('aria-pressed'), 'true');
   await page.locator('[data-step="8"] .back').click();
-  assert.equal(await visibleStep(page), '7');
-  assert.equal(await page.locator('.choice[data-field="budget"][data-value="1k"]').getAttribute('aria-pressed'), 'true');
   await page.locator('[data-step="7"] .back').click();
   await page.locator('[data-step="6"] .back').click();
   await page.locator('[data-step="5"] .back').click();
@@ -190,13 +195,14 @@ test('submitting sends one request with every answer, UTMs and the ClickLedger i
   });
   await fillApplication(page, { camera: 'unsure', budget: '5k' });
   await page.fill('#channel', '@anafit');
+  await page.fill('#source', 'Outliers video');
   await page.fill('#why', 'Want to grow');
   await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
   assert.equal(applies.length, 1);
   assert.deepEqual(applies[0].postDataJSON(), {
     firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com',
-    youtube: 'zero', business: 'yes', offer: 'yes', camera: 'unsure', budget: '5k',
-    niche: 'Fitness coaching', channel: '@anafit', why: 'Want to grow',
+    youtube: 'zero', offer: 'yes', camera: 'unsure', budget: '5k', film: 'week', share: 'both',
+    niche: 'Fitness coaching', channel: '@anafit', source: 'Outliers video', why: 'Want to grow',
     utm: { source: 'youtube', content: 'video-7' }, ckid: 'vis_1',
   });
   await context.close();
@@ -228,7 +234,7 @@ test('a server error shows the form error, stays put, and re-enables Submit', as
   await page.click('#submit');
   await page.waitForSelector('#form-err:not(:empty)');
   assert.equal(await page.locator('#form-err').innerText(), 'Something went wrong. Please try again.');
-  assert.equal(await visibleStep(page), '8');
+  assert.equal(await visibleStep(page), '9');
   assert.equal(await page.locator('#submit').isDisabled(), false);
   assert.match(await page.locator('#submit').innerText(), /Submit Application/i); // innerText applies the uppercase styling
   await context.close();
@@ -344,10 +350,10 @@ for (const [label, size] of Object.entries(SIZES)) {
     // The next step's options sit where this step's were, so a second click would answer it.
     await page.locator('.choice[data-field="youtube"][data-value="zero"]').dblclick();
     assert.equal(await visibleStep(page), '4');
-    assert.equal(await page.locator('.choice[data-field="business"][aria-pressed="true"]').count(), 0);
-    await page.locator('.choice[data-field="business"][data-value="yes"]').dblclick();
-    assert.equal(await visibleStep(page), '5');
     assert.equal(await page.locator('.choice[data-field="offer"][aria-pressed="true"]').count(), 0);
+    await page.locator('.choice[data-field="offer"][data-value="yes"]').dblclick();
+    assert.equal(await visibleStep(page), '5');
+    assert.equal(await page.locator('.choice[data-field="camera"][aria-pressed="true"]').count(), 0);
     await context.close();
   });
 }

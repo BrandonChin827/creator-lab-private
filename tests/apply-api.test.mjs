@@ -9,8 +9,8 @@ const ENV = {
 const NOW = Date.UTC(2026, 9, 2, 12, 0, 0);
 const APP = {
   firstName: ' Ana ', lastName: 'Diaz', email: ' ana@example.com ',
-  youtube: 'stagnant', business: 'yes', offer: 'yes', camera: 'unsure', budget: '1k',
-  niche: 'Fitness coaching', channel: '@anafit', why: 'Want to grow', ckid: 'vis_1',
+  youtube: 'stagnant', offer: 'yes', camera: 'unsure', budget: '1500', film: 'week', share: 'both',
+  niche: 'Fitness coaching', channel: '@anafit', source: 'Outliers video', why: 'Want to grow', ckid: 'vis_1',
   utm: { source: 'youtube', medium: '', campaign: 'oct', content: 'video-7' },
 };
 
@@ -50,10 +50,13 @@ test('a qualified application is saved to Notion and Kit with both tags', async 
   assert.deepEqual(p.Status, { select: { name: 'New' } });
   assert.deepEqual(p.Qualified, { checkbox: true });
   assert.deepEqual(p['YouTube experience'], { select: { name: 'Grew but stagnant' } });
-  assert.deepEqual(p['Revenue business'], { select: { name: 'Yes' } });
   assert.deepEqual(p['Has offer'], { select: { name: 'Yes' } });
   assert.deepEqual(p['On camera'], { select: { name: 'Unsure' } });
-  assert.deepEqual(p.Budget, { select: { name: '$1k–$2.5k' } });
+  assert.deepEqual(p.Budget, { select: { name: '$1.5k–$3k' } });
+  assert.deepEqual(p['Can film'], { select: { name: 'Within 7 days' } });
+  assert.deepEqual(p['Post + case study'], { select: { name: 'Yes to both' } });
+  assert.equal(p['Found us via'].rich_text[0].text.content, 'Outliers video');
+  assert.equal(p['Revenue business'], undefined);
   assert.equal(p.Niche.rich_text[0].text.content, 'Fitness coaching');
   assert.equal(p.Channel.rich_text[0].text.content, '@anafit');
   assert.equal(p.Why.rich_text[0].text.content, 'Want to grow');
@@ -78,18 +81,18 @@ test('a qualified application is saved to Notion and Kit with both tags', async 
 
 test('an unqualified application is saved but only gets the applicant tag', async () => {
   const s = fakeServices();
-  const res = await run({ ...APP, budget: 'under1k' }, s);
+  const res = await run({ ...APP, budget: 'under1500' }, s);
   assert.deepEqual(await res.json(), { ok: true, qualified: false });
   assert.deepEqual(s.of('notion')[0].body.properties.Qualified, { checkbox: false });
-  assert.deepEqual(s.of('notion')[0].body.properties.Budget, { select: { name: 'Under $1k' } });
+  assert.deepEqual(s.of('notion')[0].body.properties.Budget, { select: { name: 'Under $1.5k' } });
   assert.deepEqual(s.of('kit').map(c => c.path), ['/subscribers', '/tags/11/subscribers']);
 });
 
 test('empty optional answers become empty Notion text and are left out of Kit', async () => {
   const s = fakeServices();
-  await run({ ...APP, channel: '', why: '', ckid: '', utm: {} }, s);
+  await run({ ...APP, channel: '', source: '', why: '', ckid: '', utm: {} }, s);
   const p = s.of('notion')[0].body.properties;
-  for (const key of ['Channel', 'Why', 'ClickLedger ID', 'UTM source', 'UTM campaign', 'UTM content']) {
+  for (const key of ['Channel', 'Found us via', 'Why', 'ClickLedger ID', 'UTM source', 'UTM campaign', 'UTM content']) {
     assert.deepEqual(p[key], { rich_text: [] }, key);
   }
   assert.deepEqual(s.of('kit')[0].body.fields, { last_name: 'Diaz' });
@@ -116,7 +119,7 @@ test('a Kit failure is logged but the visitor still gets through', async () => {
 });
 
 test('bad input is rejected without calling Notion or Kit', async () => {
-  for (const body of ['not json', 'x'.repeat(10_001), { ...APP, email: 'nope' }, { ...APP, niche: '' }, { ...APP, budget: ['1k'] }]) {
+  for (const body of ['not json', 'x'.repeat(10_001), { ...APP, email: 'nope' }, { ...APP, niche: '' }, { ...APP, budget: ['1500'] }]) {
     const s = fakeServices();
     const res = await run(body, s);
     assert.equal(res.status, 400, typeof body === 'string' ? body.slice(0, 20) : JSON.stringify(body));

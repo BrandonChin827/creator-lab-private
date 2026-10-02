@@ -6,21 +6,22 @@ import {
 
 const GOOD = {
   firstName: ' Ana ', lastName: ' Diaz ', email: ' ana@example.com ',
-  youtube: 'zero', business: 'yes', offer: 'yes', camera: 'unsure', budget: '1k',
-  niche: ' Fitness coaching ', channel: ' @anafit ', why: ' Want to grow ', ckid: ' vis_1 ',
+  youtube: 'zero', offer: 'yes', camera: 'unsure', budget: '1500', film: 'week', share: 'both',
+  niche: ' Fitness coaching ', channel: ' @anafit ', source: ' Outliers video ', why: ' Want to grow ', ckid: ' vis_1 ',
   utm: { source: ' youtube ', medium: '', campaign: 'oct', content: 'video-7', term: 7 },
 };
 
-test('qualifies only with revenue, an offer, willing to film, and $1,000+ budget', () => {
-  const base = { business: 'yes', offer: 'yes', camera: 'yes', budget: '1k' };
+test('books instantly only with an offer, on camera, $1,500+ budget, filming within 7 days, and yes to posting + case study', () => {
+  const base = { offer: 'yes', camera: 'yes', budget: '1500', film: 'week', share: 'both' };
   assert.equal(isQualified(base), true);
   assert.equal(isQualified({ ...base, camera: 'unsure' }), true);
-  for (const budget of ['2500', '5k']) assert.equal(isQualified({ ...base, budget }), true, budget);
-  assert.equal(isQualified({ ...base, business: 'no' }), false);
-  assert.equal(isQualified({ ...base, offer: 'no' }), false);
+  for (const budget of ['3000', '5k']) assert.equal(isQualified({ ...base, budget }), true, budget);
+  for (const offer of ['planning', 'no']) assert.equal(isQualified({ ...base, offer }), false, offer);
   assert.equal(isQualified({ ...base, camera: 'no' }), false);
-  assert.equal(isQualified({ ...base, budget: 'under1k' }), false);
+  assert.equal(isQualified({ ...base, budget: 'under1500' }), false);
   assert.equal(isQualified({ ...base, budget: 'lots' }), false);
+  for (const film of ['weeks', 'unsure']) assert.equal(isQualified({ ...base, film }), false, film);
+  for (const share of ['post', 'unsure']) assert.equal(isQualified({ ...base, share }), false, share);
   assert.equal(isQualified({}), false);
 });
 
@@ -39,23 +40,25 @@ test('niche is required', () => {
 test('cleanApplication trims everything and keeps only non-empty UTMs', () => {
   assert.deepEqual(cleanApplication(GOOD), {
     firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com',
-    youtube: 'zero', business: 'yes', offer: 'yes', camera: 'unsure', budget: '1k',
-    niche: 'Fitness coaching', channel: '@anafit', why: 'Want to grow', ckid: 'vis_1',
+    youtube: 'zero', offer: 'yes', camera: 'unsure', budget: '1500', film: 'week', share: 'both',
+    niche: 'Fitness coaching', channel: '@anafit', source: 'Outliers video', why: 'Want to grow', ckid: 'vis_1',
     utm: { source: 'youtube', campaign: 'oct', content: 'video-7' },
   });
 });
 
 test('cleanApplication caps the free-text answers', () => {
-  const app = cleanApplication({ ...GOOD, niche: 'n'.repeat(500), channel: 'c'.repeat(500), why: 'w'.repeat(5000), ckid: 'k'.repeat(500) });
+  const app = cleanApplication({ ...GOOD, niche: 'n'.repeat(500), channel: 'c'.repeat(500), source: 's'.repeat(500), why: 'w'.repeat(5000), ckid: 'k'.repeat(500) });
   assert.equal(app.niche.length, LIMITS.niche);
   assert.equal(app.channel.length, LIMITS.channel);
+  assert.equal(app.source.length, LIMITS.source);
   assert.equal(app.why.length, LIMITS.why);
   assert.equal(app.ckid.length, 100);
 });
 
 test('cleanApplication treats optional answers as optional', () => {
-  const app = cleanApplication({ ...GOOD, channel: undefined, why: 42, ckid: null, utm: 'nope' });
+  const app = cleanApplication({ ...GOOD, channel: undefined, source: undefined, why: 42, ckid: null, utm: 'nope' });
   assert.equal(app.channel, '');
+  assert.equal(app.source, '');
   assert.equal(app.why, '');
   assert.equal(app.ckid, '');
   assert.deepEqual(app.utm, {});
@@ -67,7 +70,7 @@ test('cleanApplication rejects missing or invalid required answers', () => {
     { ...GOOD, firstName: '' }, { ...GOOD, lastName: 'x'.repeat(61) }, { ...GOOD, email: 'nope' },
     { ...GOOD, niche: ' ' }, { ...GOOD, youtube: 'expert' }, { ...GOOD, budget: undefined },
     { ...GOOD, camera: 'toString' }, // inherited object keys are not answers
-    { ...GOOD, budget: ['1k'] }, { ...GOOD, offer: { toString: () => 'yes' } }, // only exact strings
+    { ...GOOD, budget: ['1500'] }, { ...GOOD, film: 'never' }, { ...GOOD, share: undefined }, { ...GOOD, offer: { toString: () => 'yes' } }, // only exact strings
   ];
   for (const body of bad) assert.equal(cleanApplication(body), null, JSON.stringify(body));
 });
