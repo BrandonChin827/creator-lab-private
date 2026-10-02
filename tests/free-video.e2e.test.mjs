@@ -59,7 +59,8 @@ async function open(url, { size = SIZES.desktop, init } = {}) {
   const context = await browser.newContext({ viewport: size });
   context.setDefaultTimeout(5000);
   await context.route(/clickledger\.io|calendly\.com/, route => route.abort());
-  if (init) await context.addInitScript(init);
+  // init is a function, or [function, arg] when it needs a value (init scripts can't see outer variables).
+  if (init) await context.addInitScript(...[].concat(init));
   const page = await context.newPage();
   const errors = [];
   const applies = [];
@@ -246,5 +247,82 @@ test('the form works on browsers without AbortSignal.timeout (iOS 15)', async ()
   const { page, context } = await open(LANDING, { init: () => { delete AbortSignal.timeout; } });
   await fillApplication(page);
   await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+  await context.close();
+});
+
+const saveResult = value => [v => sessionStorage.setItem('portlock.freeVideo', v), value];
+const RESULT = (o = {}) => JSON.stringify({ firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com', qualified: true, ...o });
+
+test('qualified applicants see the 15 min Calendly with name and email filled in', async () => {
+  const { page, context, errors } = await open(NEXT, { init: saveResult(RESULT()) });
+  assert.equal(await page.locator('h1').innerText(), 'You qualify, Ana!\nPick a time for your 15 min call.');
+  const url = new URL(await page.locator('#cal').getAttribute('data-url'));
+  assert.equal(url.pathname, '/bentoboi/youtube-vide-strategy-consultation');
+  assert.equal(url.searchParams.get('name'), 'Ana Diaz');
+  assert.equal(url.searchParams.get('email'), 'ana@example.com');
+  assert.ok(await page.locator('#cal').isVisible());
+  assert.equal(await page.locator('script[src="https://assets.calendly.com/assets/external/widget.js"]').count(), 1);
+  assert.deepEqual(ownErrors(errors), []);
+  await context.close();
+});
+
+test('reloading keeps a qualified applicant on the calendar', async () => {
+  const { page, context } = await open(NEXT, { init: saveResult(RESULT()) });
+  await page.reload();
+  assert.equal(page.url(), NEXT);
+  assert.ok(await page.locator('#cal').isVisible());
+  await context.close();
+});
+
+test('everyone else is told we will review their application', async () => {
+  const { page, context } = await open(NEXT, { init: saveResult(RESULT({ qualified: false })) });
+  assert.equal(await page.locator('h1').innerText(), "Thanks, Ana.\nWe'll be in touch.");
+  assert.match(await page.locator('#sub').innerText(), /review your application/);
+  assert.equal(await page.locator('#cal').isVisible(), false);
+  assert.equal(await page.locator('script[src*="calendly"]').count(), 0);
+  await context.close();
+});
+
+test('visiting the thank-you page without applying goes back to the form', async () => {
+  for (const init of [undefined, saveResult('garbage')]) {
+    const { page, context } = await open(NEXT, { init });
+    await page.waitForURL(LANDING);
+    await context.close();
+  }
+});
+
+test('a name containing HTML is shown as text, never run', async () => {
+  const name = '<img src=x onerror="window.pwned=1">';
+  const { page, context } = await open(NEXT, { init: saveResult(RESULT({ firstName: name })) });
+  assert.equal(await page.locator('h1').innerText(), `You qualify, ${name}!\nPick a time for your 15 min call.`);
+  assert.equal(await page.evaluate(() => window.pwned), undefined);
+  assert.equal(await page.locator('h1 img').count(), 0);
+  await context.close();
+});
+
+test('with storage blocked, the page still shows the review message', async () => {
+  const { page, context } = await open(NEXT, {
+    init: () => Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('blocked', 'SecurityError'); } }),
+  });
+  assert.equal(await page.locator('h1').innerText(), "Thanks.\nWe'll be in touch.");
+  await context.close();
+});
+
+for (const [label, size] of Object.entries(SIZES)) {
+  test(`full flow on ${label}: apply, land on the calendar, no overflow`, async () => {
+    const { page, context, errors } = await open(LANDING, { size });
+    await fillApplication(page, { first: 'Brandon', last: 'Chin' });
+    await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+    assert.equal(await page.locator('h1').innerText(), 'You qualify, Brandon!\nPick a time for your 15 min call.');
+    assert.equal(await overflow(page), 0);
+    assert.deepEqual(ownErrors(errors), []);
+    await context.close();
+  });
+}
+
+test('the thank-you page has the ClickLedger snippet and is not indexed', async () => {
+  const { page, context } = await open(NEXT, { init: saveResult(RESULT()) });
+  assert.equal(await page.locator('script[src="https://www.clickledger.io/track.js"]').count(), 1);
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex');
   await context.close();
 });
