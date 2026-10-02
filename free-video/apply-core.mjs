@@ -67,15 +67,19 @@ export function cleanApplication(body) {
 }
 
 // Calendly inline embed URL: name and email filled in, colours matched to the page.
+// Built with encodeURIComponent rather than URLSearchParams, which writes spaces as "+"
+// and Calendly then shows the name as "Ana+Diaz".
 export function calendlyUrl({ firstName = '', lastName = '', email = '' }) {
-  const url = new URL(CALENDLY_URL);
-  url.searchParams.set('name', `${firstName} ${lastName}`.trim());
-  if (email) url.searchParams.set('email', email);
-  url.searchParams.set('hide_gdpr_banner', '1');
-  url.searchParams.set('background_color', '0b0b0e');
-  url.searchParams.set('text_color', 'f4f1eb');
-  url.searchParams.set('primary_color', 'ff7a1a');
-  return url.toString();
+  const params = {
+    name: `${firstName} ${lastName}`.trim(),
+    ...(email ? { email } : {}),
+    hide_gdpr_banner: '1',
+    background_color: '0b0b0e',
+    text_color: 'f4f1eb',
+    primary_color: 'ff7a1a',
+  };
+  const query = Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  return `${CALENDLY_URL}?${query}`;
 }
 
 // The result the form saves for the thank-you page, or null if missing or malformed.

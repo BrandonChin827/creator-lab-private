@@ -97,3 +97,10 @@ test('readResult accepts only a well-formed saved result', () => {
 test('storage key is stable', () => {
   assert.equal(RESULT_KEY, 'portlock.freeVideo');
 });
+
+test('calendlyUrl sends spaces as %20, because Calendly shows a + literally ("Ana+Diaz")', () => {
+  const raw = calendlyUrl({ firstName: 'Ana Maria', lastName: 'Diaz', email: 'ana+yt@example.com' });
+  assert.ok(raw.includes('name=Ana%20Maria%20Diaz'), raw);
+  assert.ok(!/name=[^&]*\+/.test(raw), raw);
+  assert.equal(new URL(raw).searchParams.get('email'), 'ana+yt@example.com'); // a + inside the email survives
+});
