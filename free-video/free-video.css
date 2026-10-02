@@ -9,7 +9,7 @@
 .card{position:relative;max-width:600px;margin:0 auto;padding:34px 32px 26px;border-radius:18px;background:linear-gradient(180deg,#131217,#0b0b0e);text-align:left;box-shadow:0 30px 80px rgba(0,0,0,.55)}
 .card:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(255,152,74,.8),rgba(172,124,246,.7));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none}
 .progress{height:3px;margin:0 0 14px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
-.progress i{display:block;height:100%;width:var(--pct,12.5%);border-radius:inherit;background:linear-gradient(90deg,#ff984a,#ac7cf6);transition:width .35s ease}
+.progress i{display:block;height:100%;width:var(--pct,0);border-radius:inherit;background:linear-gradient(90deg,#ff984a,#ac7cf6);transition:width .35s ease}
 .stepnum{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8b878e}
 .card h2{margin:6px 0 20px;font:650 28px/1.2 var(--display);letter-spacing:-.02em}
 .card h2[tabindex]:focus{outline:none}

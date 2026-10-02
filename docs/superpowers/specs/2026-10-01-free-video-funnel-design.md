@@ -108,32 +108,37 @@ outcomes:
 - **Not qualified:** "Thanks, {firstName}. We'll review your application and get back
   to you by email."
 
-To see each one while testing: apply with a budget of "$1,000–$2,500" (qualified) or
-"Under $1,000" (not qualified). There are no hidden preview switches.
+To see each one while testing: answer Yes to the offer, Yes to camera, "$1,500 to $3,000"
+for budget, Yes to filming within 7 days, and "Yes to both" (qualified); change any one of
+those, for example budget "Under $1,500" (not qualified). There are no hidden preview switches.
 
 ## Form
 
 One question per screen, with a progress bar and a Back link. Choice screens advance
-when an answer is tapped.
+when an answer is tapped (only the first click of a double-click counts).
 
-| # | Question | Type | Required |
-|---|---|---|---|
-| 1 | What's your name? | First + last name | Yes |
-| 2 | What's your email? | Email | Yes |
-| 3 | What's your experience with YouTube so far? | Starting from zero / Grew but stagnant / Other | Yes |
-| 4 | Do you run a business that's making revenue? | Yes / Not yet | Yes |
-| 5 | Do you have an offer you actively sell? | Yes / Not yet | Yes |
-| 6 | Are you willing to show up on camera? | Yes / No / Unsure | Yes |
-| 7 | Monthly budget to invest in growth? | Under $1,000 / $1,000–$2,500 / $2,500–$5,000 / $5,000+ | Yes |
-| 8 | Tell us about your business | Niche (text, required), YouTube channel link (optional), "Why do you want a free video?" (text, optional) | Partly |
+| # | Question | Answers |
+|---|---|---|
+| 1 | What's your name? | First + last name |
+| 2 | What's your email? | Email |
+| 3 | What's your experience with YouTube so far? | Starting from zero / Grew but stagnant / Other |
+| 4 | Do you have an offer you're selling? | Yes / No, but planning to make one / No, not planning on it |
+| 5 | Are you willing to show up on camera? | Yes / No / Unsure |
+| 6 | Monthly budget to invest in growth? | Under $1,500 / $1,500 to $3,000 / $3,000 to $5,000 / $5,000+ |
+| 7 | Can you film within 7 days of getting your script? | Yes / Within 2 to 3 weeks / Not sure |
+| 8 | Will you post the video and let us share it as a case study? | Yes to both / I'll post it, but no case study / Not sure yet |
+| 9 | Tell us about your channel | Niche (required), YouTube channel, Which video brought you here?, Why do you want a free video? (all optional) |
 
-Step 8's button is **Submit Application →**. While sending it shows "Sending…", and on
+Step 9's button is **Submit Application →**. While sending it shows "Sending…", and on
 failure it shows "Something went wrong. Please try again." and stays on the form.
 Name and email validation reuses `youtube-idea-skill/lead-core.mjs`. A hidden
 honeypot field is included, and submissions with it filled are dropped silently.
 
-**Qualification rule** (worked out on the server, and returned to the page):
-business = Yes **and** offer = Yes **and** camera ≠ No **and** budget ≥ $1,000.
+**Books a call instantly** (worked out on the server, and returned to the page): offer =
+Yes **and** camera ≠ No **and** budget ≥ $1,500 (the retainer is $1,500/month for the first
+3 clients; raise the floor in `isQualified` when the price goes up) **and** films within
+7 days **and** yes to posting + case study. Everyone else sees "We'll be in touch", and
+Brandon personally emails a booking link to near-misses from Notion.
 
 ## Data flow
 
@@ -145,10 +150,10 @@ Browser ──POST /api/apply──▶ Vercel function ──▶ Notion (create 
 ```
 
 `POST /api/apply` JSON:
-`{ firstName, lastName, email, youtube, business, offer, camera, budget, niche,
-channel, why, utm: {source, medium, campaign, content, term}, ckid, hp }`.
+`{ firstName, lastName, email, youtube, offer, camera, budget, film, share, niche,
+channel, source, why, utm: {source, medium, campaign, content, term}, ckid, hp }`.
 The server checks every choice against the allowed list and caps text lengths
-(niche 200, channel 200, why 1,000). Kit and Notion calls each time out after 5s,
+(niche 200, channel 200, source 200, why 1,000). Kit and Notion calls each time out after 5s,
 matching PR #2.
 
 - **Notion is the main record.** If the Notion write fails, the API returns 502 and the
@@ -168,8 +173,8 @@ matching PR #2.
 | Email | Email |
 | Status | Select: New (default), Call booked, Video made, Client, Not a fit |
 | Qualified | Checkbox |
-| YouTube experience, Revenue business, Has offer, On camera, Budget | Select (Notion doesn't allow commas in select options, so Budget is stored as Under $1k, $1k–$2.5k, $2.5k–$5k, $5k+) |
-| Niche, Why | Text |
+| YouTube experience, Has offer, On camera, Budget, Can film, Post + case study | Select (Notion doesn't allow commas in select options, so labels are short: Planning one / Not planning, Under $1.5k / $1.5k–$3k / $3k–$5k / $5k+, Within 7 days / Within 2–3 weeks / Not sure, Yes to both / Post only / Not sure yet) |
+| Niche, Why, Found us via | Text |
 | Channel | Text (so "@handle" works as well as a link) |
 | ClickLedger ID, UTM source, UTM campaign, UTM content | Text |
 | Applied | Date |

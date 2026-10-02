@@ -5,7 +5,7 @@ import { validateFirstName, validateLastName, validateEmail, UTM_KEYS } from '..
 
 export const RESULT_KEY = 'portlock.freeVideo';
 export const CALENDLY_URL = 'https://calendly.com/bentoboi/youtube-vide-strategy-consultation';
-export const LIMITS = { niche: 200, channel: 200, why: 1000 };
+export const LIMITS = { niche: 200, channel: 200, source: 200, why: 1000 };
 const MAX_CKID = 100;
 const MAX_UTM = 200;
 
@@ -13,19 +13,23 @@ const MAX_UTM = 200;
 // options, so labels never contain one.
 export const CHOICES = {
   youtube: { zero: 'Starting from zero', stagnant: 'Grew but stagnant', other: 'Other' },
-  business: { yes: 'Yes', no: 'Not yet' },
-  offer: { yes: 'Yes', no: 'Not yet' },
+  offer: { yes: 'Yes', planning: 'Planning one', no: 'Not planning' },
   camera: { yes: 'Yes', no: 'No', unsure: 'Unsure' },
-  budget: { under1k: 'Under $1k', '1k': '$1k–$2.5k', '2500': '$2.5k–$5k', '5k': '$5k+' },
+  budget: { under1500: 'Under $1.5k', 1500: '$1.5k–$3k', 3000: '$3k–$5k', '5k': '$5k+' },
+  film: { week: 'Within 7 days', weeks: 'Within 2–3 weeks', unsure: 'Not sure' },
+  share: { both: 'Yes to both', post: 'Post only', unsure: 'Not sure yet' },
 };
 
 const isChoice = (field, value) => typeof value === 'string' && Object.hasOwn(CHOICES[field], value);
 
+// Books a call instantly. Everyone else is reviewed by hand from Notion. The budget
+// floor matches the $1,500/month retainer (first 3 clients).
 export function isQualified(answers) {
-  return answers.business === 'yes'
-    && answers.offer === 'yes'
+  return answers.offer === 'yes'
     && isChoice('camera', answers.camera) && answers.camera !== 'no'
-    && isChoice('budget', answers.budget) && answers.budget !== 'under1k';
+    && isChoice('budget', answers.budget) && answers.budget !== 'under1500'
+    && answers.film === 'week'
+    && answers.share === 'both';
 }
 
 export function validateNiche(value) {
@@ -52,9 +56,10 @@ export function cleanApplication(body) {
   }
   return {
     firstName, lastName, email,
-    youtube: body.youtube, business: body.business, offer: body.offer, camera: body.camera, budget: body.budget,
+    youtube: body.youtube, offer: body.offer, camera: body.camera, budget: body.budget, film: body.film, share: body.share,
     niche: text(body.niche, LIMITS.niche),
     channel: text(body.channel, LIMITS.channel),
+    source: text(body.source, LIMITS.source),
     why: text(body.why, LIMITS.why),
     ckid: text(body.ckid, MAX_CKID),
     utm,
@@ -62,15 +67,19 @@ export function cleanApplication(body) {
 }
 
 // Calendly inline embed URL: name and email filled in, colours matched to the page.
+// Built with encodeURIComponent rather than URLSearchParams, which writes spaces as "+"
+// and Calendly then shows the name as "Ana+Diaz".
 export function calendlyUrl({ firstName = '', lastName = '', email = '' }) {
-  const url = new URL(CALENDLY_URL);
-  url.searchParams.set('name', `${firstName} ${lastName}`.trim());
-  if (email) url.searchParams.set('email', email);
-  url.searchParams.set('hide_gdpr_banner', '1');
-  url.searchParams.set('background_color', '0b0b0e');
-  url.searchParams.set('text_color', 'f4f1eb');
-  url.searchParams.set('primary_color', 'ff7a1a');
-  return url.toString();
+  const params = {
+    name: `${firstName} ${lastName}`.trim(),
+    ...(email ? { email } : {}),
+    hide_gdpr_banner: '1',
+    background_color: '0b0b0e',
+    text_color: 'f4f1eb',
+    primary_color: 'ff7a1a',
+  };
+  const query = Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  return `${CALENDLY_URL}?${query}`;
 }
 
 // The result the form saves for the thank-you page, or null if missing or malformed.
