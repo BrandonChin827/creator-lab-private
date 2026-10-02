@@ -97,9 +97,9 @@ test('landing has the how-it-works steps, the two real stats, and six FAQs', asy
   await context.close();
 });
 
-test('See If You Qualify jumps to the form', async () => {
+test('hero has no CTA button and the form sits right under it', async () => {
   const { page, context } = await open(LANDING);
-  assert.equal(await page.locator('.hero .btn-primary').getAttribute('href'), '#apply');
+  assert.equal(await page.locator('.hero .btn-primary').count(), 0);
   assert.equal(await page.locator('#apply #apply-form').count(), 1);
   await context.close();
 });
