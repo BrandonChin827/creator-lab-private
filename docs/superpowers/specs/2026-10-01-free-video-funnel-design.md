@@ -68,10 +68,14 @@ Section order follows MediaFlow:
    3. **You film.** Follow the script. We'll show you how to film it, and a phone is fine.
    4. **Video reveal.** We hand you the finished video, ready to post. If it makes sense,
       we talk about working together long-term.
-4. **Proof.** Two stats in MediaFlow's "big number + label" style, with the number in
-   the gradient: "**7 figures** generated through my personal brand" and "**300k+**
-   followers across platforms". Client result screenshots are added here only if
-   Brandon supplies real ones.
+4. **About Me** (`#about`). Built like the homepage's "Why us?" section, with the
+   heading "About Me" and the same subline ("Personalized specific strategy, hands-on
+   implementation, and done-for-you AI workflows."). It has the two stat cards (the page's
+   bigger centred version: "**7 figures**" generated through my personal brand,
+   "**300k+**" followers across platforms), Brandon's story card and photo
+   (`/assets/photos/founder.jpg`), and a **See If You Qualify →** button to `#apply`
+   (not the homepage's Tally "Book a Call"). Client result screenshots are added only
+   if Brandon supplies real ones.
 5. **FAQs.** An accordion with 6 questions:
    - *How long does the video take?* "Usually 3 to 7 days after you send us your
      footage, depending on how complex the video is."

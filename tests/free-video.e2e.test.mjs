@@ -358,3 +358,16 @@ test('the calendar fits a 320px-wide phone', async () => {
   assert.ok(box.x >= 0 && box.x + box.width <= 320, JSON.stringify(box));
   await context.close();
 });
+
+test('About Me section matches the homepage: stats, story, photo, and a button to the form', async () => {
+  const { page, context } = await open(LANDING);
+  const about = page.locator('#about');
+  assert.equal(await about.locator('.section-head h2').innerText(), 'About Me');
+  assert.deepEqual(await about.locator('.stat b').allInnerTexts(), ['7 figures', '300k+']);
+  assert.match(await about.locator('.about-story').innerText(), /^I'm Brandon\. I built my personal brand from zero/);
+  assert.equal(await about.locator('.about-photo img').getAttribute('src'), '/assets/photos/founder.jpg');
+  assert.equal((await fetch(`${BASE}/assets/photos/founder.jpg`)).status, 200);
+  // This page's button goes to its own application form, not the homepage's Tally form.
+  assert.equal(await about.locator('.cta-row .btn-primary').getAttribute('href'), '#apply');
+  await context.close();
+});
