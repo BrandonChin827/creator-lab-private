@@ -108,8 +108,9 @@ outcomes:
 - **Not qualified:** "Thanks, {firstName}. We'll review your application and get back
   to you by email."
 
-To see each one while testing: apply with a budget of "$1,000–$2,500" (qualified) or
-"Under $1,000" (not qualified). There are no hidden preview switches.
+To see each one while testing: answer Yes to the offer, Yes to camera, "$1,500 to $3,000"
+for budget, Yes to filming within 7 days, and "Yes to both" (qualified); change any one of
+those, for example budget "Under $1,500" (not qualified). There are no hidden preview switches.
 
 ## Form
 

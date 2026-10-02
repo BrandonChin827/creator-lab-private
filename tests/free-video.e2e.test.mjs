@@ -377,3 +377,13 @@ test('About Me section matches the homepage: stats, story, photo, and a button t
   assert.equal(await about.locator('.cta-row .btn-primary').getAttribute('href'), '#apply');
   await context.close();
 });
+
+test('the progress bar starts at step 1 of 9 (one ninth full)', async () => {
+  const { page, context } = await open(LANDING);
+  const ratio = await page.evaluate(() => {
+    const bar = document.querySelector('#apply-form .progress');
+    return bar.querySelector('i').getBoundingClientRect().width / bar.getBoundingClientRect().width;
+  });
+  assert.ok(Math.abs(ratio - 1 / 9) < 0.005, String(ratio));
+  await context.close();
+});
