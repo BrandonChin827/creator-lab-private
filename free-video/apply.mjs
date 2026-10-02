@@ -123,6 +123,9 @@ form.addEventListener('submit', e => {
 form.addEventListener('click', e => {
   const choice = e.target.closest('.choice');
   if (choice) {
+    // The next step's options sit where this step's were, so the second click of a
+    // double-click would answer a question the visitor never saw. Only the first counts.
+    if (e.detail > 1) return;
     answers[choice.dataset.field] = choice.dataset.value;
     for (const option of choice.parentElement.querySelectorAll('.choice')) {
       option.setAttribute('aria-pressed', String(option === choice));

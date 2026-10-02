@@ -332,3 +332,29 @@ test('the privacy page mentions Notion and the application answers', async () =>
   assert.match(html, /Notion \(storing applications\)/);
   assert.match(html, /budget/);
 });
+
+for (const [label, size] of Object.entries(SIZES)) {
+  test(`double-clicking an answer only answers that question (${label})`, async () => {
+    const { page, context } = await open(LANDING, { size });
+    await page.fill('#firstName', 'Ana');
+    await page.fill('#lastName', 'Diaz');
+    await page.click(nextButton(1));
+    await page.fill('#email', 'ana@example.com');
+    await page.click(nextButton(2));
+    // The next step's options sit where this step's were, so a second click would answer it.
+    await page.locator('.choice[data-field="youtube"][data-value="zero"]').dblclick();
+    assert.equal(await visibleStep(page), '4');
+    assert.equal(await page.locator('.choice[data-field="business"][aria-pressed="true"]').count(), 0);
+    await page.locator('.choice[data-field="business"][data-value="yes"]').dblclick();
+    assert.equal(await visibleStep(page), '5');
+    assert.equal(await page.locator('.choice[data-field="offer"][aria-pressed="true"]').count(), 0);
+    await context.close();
+  });
+}
+
+test('the calendar fits a 320px-wide phone', async () => {
+  const { page, context } = await open(NEXT, { size: { width: 320, height: 640 }, init: saveResult(RESULT()) });
+  const box = await page.locator('#cal').boundingBox();
+  assert.ok(box.x >= 0 && box.x + box.width <= 320, JSON.stringify(box));
+  await context.close();
+});
