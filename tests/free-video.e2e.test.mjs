@@ -111,3 +111,140 @@ test('landing carries the ClickLedger snippet, links Privacy and Terms, and is i
   assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://portlockcreative.com/free-video/');
   await context.close();
 });
+
+const visibleStep = page => page.evaluate(() => document.querySelector('#apply-form .step:not([hidden])')?.dataset.step);
+const nextButton = n => `#apply-form .step[data-step="${n}"] button[type="submit"]`;
+
+// Fills every step up to (not including) Submit. Pass overrides to change answers.
+async function fillApplication(page, o = {}) {
+  const a = { first: 'Ana', last: 'Diaz', email: 'ana@example.com', youtube: 'zero', business: 'yes', offer: 'yes', camera: 'yes', budget: '1k', niche: 'Fitness coaching', ...o };
+  await page.fill('#firstName', a.first);
+  await page.fill('#lastName', a.last);
+  await page.click(nextButton(1));
+  await page.fill('#email', a.email);
+  await page.click(nextButton(2));
+  for (const field of ['youtube', 'business', 'offer', 'camera', 'budget']) {
+    await page.click(`.choice[data-field="${field}"][data-value="${a[field]}"]`);
+  }
+  await page.fill('#niche', a.niche);
+}
+
+test('the form walks through eight steps with the progress bar following', async () => {
+  const { page, context } = await open(LANDING);
+  assert.equal(await visibleStep(page), '1');
+  await page.fill('#firstName', 'Ana');
+  await page.fill('#lastName', 'Diaz');
+  await page.keyboard.press('Enter');
+  assert.equal(await visibleStep(page), '2');
+  await page.fill('#email', 'ana@example.com');
+  await page.keyboard.press('Enter');
+  assert.equal(await visibleStep(page), '3');
+  assert.equal(await page.locator('.progress').getAttribute('aria-valuenow'), '3');
+  await page.click('.choice[data-value="zero"]');
+  assert.equal(await visibleStep(page), '4');
+  await context.close();
+});
+
+test('empty names, a bad email, and an empty niche show errors and send nothing', async () => {
+  const { page, context, applies } = await open(LANDING);
+  await page.click(nextButton(1));
+  assert.match(await page.locator('#firstName-err').innerText(), /first name/);
+  assert.match(await page.locator('#lastName-err').innerText(), /last name/);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'firstName');
+  await page.fill('#firstName', 'Ana');
+  await page.fill('#lastName', 'Diaz');
+  await page.click(nextButton(1));
+  await page.fill('#email', 'nope');
+  await page.click(nextButton(2));
+  assert.match(await page.locator('#email-err').innerText(), /doesn't look right/);
+  assert.equal(await visibleStep(page), '2');
+
+  await page.reload();
+  await fillApplication(page, { niche: '' });
+  await page.click('#submit');
+  assert.match(await page.locator('#niche-err').innerText(), /niche/);
+  assert.equal(applies.length, 0);
+  await context.close();
+});
+
+test('Back keeps earlier answers and marks the chosen option', async () => {
+  const { page, context } = await open(LANDING);
+  await fillApplication(page);
+  await page.locator('[data-step="8"] .back').click();
+  assert.equal(await visibleStep(page), '7');
+  assert.equal(await page.locator('.choice[data-field="budget"][data-value="1k"]').getAttribute('aria-pressed'), 'true');
+  await page.locator('[data-step="7"] .back').click();
+  await page.locator('[data-step="6"] .back').click();
+  await page.locator('[data-step="5"] .back').click();
+  await page.locator('[data-step="4"] .back').click();
+  await page.locator('[data-step="3"] .back').click();
+  await page.locator('[data-step="2"] .back').click();
+  assert.equal(await page.inputValue('#firstName'), 'Ana');
+  await context.close();
+});
+
+test('submitting sends one request with every answer, UTMs and the ClickLedger id', async () => {
+  const { page, context, applies } = await open(`${LANDING}?utm_source=youtube&utm_content=video-7`, {
+    init: () => localStorage.setItem('tk_vid', 'vis_1'),
+  });
+  await fillApplication(page, { camera: 'unsure', budget: '5k' });
+  await page.fill('#channel', '@anafit');
+  await page.fill('#why', 'Want to grow');
+  await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+  assert.equal(applies.length, 1);
+  assert.deepEqual(applies[0].postDataJSON(), {
+    firstName: 'Ana', lastName: 'Diaz', email: 'ana@example.com',
+    youtube: 'zero', business: 'yes', offer: 'yes', camera: 'unsure', budget: '5k',
+    niche: 'Fitness coaching', channel: '@anafit', why: 'Want to grow',
+    utm: { source: 'youtube', content: 'video-7' }, ckid: 'vis_1',
+  });
+  await context.close();
+});
+
+test('a successful submit tells ClickLedger who applied', async () => {
+  const { page, context } = await open(LANDING, {
+    init: () => { window.tk = { identify: (email, name) => sessionStorage.setItem('identified', `${email}|${name}`) }; },
+  });
+  await fillApplication(page);
+  await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('identified')), 'ana@example.com|Ana Diaz');
+  await context.close();
+});
+
+test('double-clicking Submit sends only one application', async () => {
+  const { page, context, applies } = await open(LANDING);
+  await context.route('**/api/apply', async route => { await new Promise(r => setTimeout(r, 300)); await route.continue(); });
+  await fillApplication(page);
+  await page.locator('#submit').dblclick();
+  await page.waitForURL(NEXT);
+  assert.equal(applies.length, 1);
+  await context.close();
+});
+
+test('a server error shows the form error, stays put, and re-enables Submit', async () => {
+  const { page, context } = await open(LANDING);
+  await fillApplication(page, { email: 'fail@example.com' });
+  await page.click('#submit');
+  await page.waitForSelector('#form-err:not(:empty)');
+  assert.equal(await page.locator('#form-err').innerText(), 'Something went wrong. Please try again.');
+  assert.equal(await visibleStep(page), '8');
+  assert.equal(await page.locator('#submit').isDisabled(), false);
+  assert.match(await page.locator('#submit').innerText(), /Submit Application/i); // innerText applies the uppercase styling
+  await context.close();
+});
+
+test('a filled honeypot sends nothing but looks like success', async () => {
+  const { page, context, applies } = await open(LANDING);
+  await fillApplication(page);
+  await page.evaluate(() => { document.querySelector('[name="hp_x"]').value = 'bot'; });
+  await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+  assert.equal(applies.length, 0);
+  await context.close();
+});
+
+test('the form works on browsers without AbortSignal.timeout (iOS 15)', async () => {
+  const { page, context } = await open(LANDING, { init: () => { delete AbortSignal.timeout; } });
+  await fillApplication(page);
+  await Promise.all([page.waitForURL(NEXT), page.click('#submit')]);
+  await context.close();
+});
