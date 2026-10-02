@@ -1,0 +1,83 @@
+/* Free Video pages: extras on top of the homepage styles (/assets/site.css). */
+.hero{padding-bottom:40px}
+.hero h1{max-width:none}
+.hero h1 .nw{white-space:nowrap}
+.hero-sub{max-width:640px;margin:22px auto 0;color:var(--muted);font-size:clamp(17px,2vw,19px);line-height:1.6}
+
+/* Application card (form styles from the skill page, with the homepage button) */
+.apply{padding-top:20px}
+.card{position:relative;max-width:600px;margin:0 auto;padding:34px 32px 26px;border-radius:18px;background:linear-gradient(180deg,#131217,#0b0b0e);text-align:left;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.card:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(255,152,74,.8),rgba(172,124,246,.7));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none}
+.progress{height:3px;margin:0 0 14px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress i{display:block;height:100%;width:var(--pct,12.5%);border-radius:inherit;background:linear-gradient(90deg,#ff984a,#ac7cf6);transition:width .35s ease}
+.stepnum{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8b878e}
+.card h2{margin:6px 0 20px;font:650 28px/1.2 var(--display);letter-spacing:-.02em}
+.card h2[tabindex]:focus{outline:none}
+.card h2 label{display:block}
+.names{display:grid;gap:12px}
+.card input,.card textarea{width:100%;padding:0 20px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.05);color:var(--ink);font-size:19px;transition:border-color .2s}
+.card input{height:66px}
+.card textarea{min-height:110px;padding-block:16px;font-size:17px;resize:vertical}
+.card input::placeholder,.card textarea::placeholder{color:#7a767d;letter-spacing:.06em;text-transform:uppercase;font-size:15px}
+.card input:focus,.card textarea:focus{border-color:rgba(195,165,255,.6);outline:none;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
+.card input[aria-invalid=true]{border-color:#ff7a6a}
+.field-label{display:block;margin:16px 0 8px;color:#d6d1cf;font-size:14px;font-weight:600}
+.field-label span{color:#8b878e;font-weight:400}
+.choices{display:grid;gap:10px}
+.choice{min-height:60px;padding:14px 20px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.04);color:var(--ink);font-size:16px;font-weight:600;text-align:left;cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.choice:focus-visible,.choice[aria-pressed=true]{border-color:rgba(255,152,74,.6);background:rgba(255,122,26,.08)}
+.choice:active{transform:scale(.99)}
+@media(hover:hover){.choice:hover{border-color:rgba(255,152,74,.6);background:rgba(255,122,26,.08)}}
+.err{margin:8px 0 0;color:#ff9b8a;font-size:13px;line-height:1.4}
+.err:empty{margin:0}
+.card .btn-primary{width:100%;margin-top:20px}
+.card .btn-primary:disabled{opacity:.6;cursor:progress;transform:none}
+.linkish{display:block;margin:14px auto 0;padding:4px 8px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer}
+.linkish:hover{color:var(--ink)}
+.note{margin:14px 0 0;text-align:center;color:#c9c4bf;font-size:13px}
+.hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.consent{max-width:620px;margin:22px auto 0;color:#8b878e;font-size:12px;line-height:1.6;text-align:center}
+.consent a{color:#bdb8b4;text-decoration:underline}
+
+/* How it works: zig-zag timeline of spotlight cards */
+.tl{position:relative;max-width:900px;margin:0 auto}
+.tl:before{content:"";position:absolute;left:50%;top:30px;bottom:30px;width:2px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,152,74,.7),rgba(172,124,246,.7))}
+.ts{position:relative;display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;margin-bottom:24px}
+.ts:last-child{margin-bottom:0}
+.ts .dot{grid-column:2;grid-row:1;justify-self:center;z-index:1;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#ff984a,#ac7cf6);font-weight:800;box-shadow:0 0 0 7px var(--bg),0 0 30px rgba(255,122,26,.4)}
+.ts .deliver{grid-row:1}
+.ts.l .deliver{grid-column:1}.ts.r .deliver{grid-column:3}
+.ts .deliver h3{text-align:left;margin:0 0 10px}
+
+/* Stats: homepage cards, centred and bigger. inline-block so the gradient spans the
+   number itself and runs the full orange to purple. */
+.stats .stat{padding:36px 30px 38px;text-align:center}
+.stats .stat-icon{margin-inline:auto}
+.stats .stat b{display:inline-block;margin-top:20px;font-size:clamp(48px,5vw,64px);line-height:1.15}
+.stats .stat span{margin-top:6px;color:#f4f1eb;font-size:18px}
+
+/* FAQ answers: bigger, white */
+.faq-a p{color:#f4f1eb;font-size:18px}
+
+/* Thank-you page */
+.cal{width:100%;max-width:1000px;height:720px;margin:36px auto 0;border-radius:16px;overflow:hidden}
+
+.foot{padding:70px 0 40px;text-align:center;color:#918c94;font-size:12px}
+.foot img{height:30px;filter:drop-shadow(0 0 14px rgba(252,125,33,.28))}
+.foot p{margin:14px 0 0}
+.foot a{text-decoration:underline}
+
+@media(max-width:620px){
+  .card{padding:24px 18px 20px}
+  .card h2{font-size:23px}
+  .card input{height:60px;font-size:18px}
+  .tl:before{left:21px}
+  .ts{grid-template-columns:42px 1fr;gap:14px}
+  .ts .dot{grid-column:1}
+  .ts.l .deliver,.ts.r .deliver{grid-column:2}
+  .stats .stat b{font-size:48px}
+  .stats .stat span{font-size:17px}
+  .faq-a p{font-size:17px}
+  .cal{height:1000px}
+  body{padding-bottom:0}
+}

@@ -40,6 +40,40 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Free Video application. With NOTION_TOKEN set (`node --env-file=.env.local dev-server.mjs`)
+  // it runs the real api/ handler against Notion and Kit. Otherwise it's a mock that logs the
+  // payload, answers with the real qualification rule, and returns 500 for `fail@example.com`.
+  if (pathname === '/api/apply') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json' }).end('{"ok":false}');
+      return;
+    }
+    let raw = '';
+    for await (const chunk of req) {
+      raw += chunk;
+      if (raw.length > 10_000) break;
+    }
+    if (process.env.NOTION_TOKEN) {
+      const { handleApply } = await import('./api/_apply.mjs');
+      const response = await handleApply(new Request(`http://localhost${pathname}`, { method: 'POST', body: raw }));
+      const text = await response.text();
+      console.log(`  ✉ apply → Notion/Kit ${response.status} ${text}`);
+      res.writeHead(response.status, { 'Content-Type': 'application/json' }).end(text);
+      return;
+    }
+    let payload;
+    try { payload = JSON.parse(raw); } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' }).end('{"ok":false}');
+      return;
+    }
+    const { isQualified } = await import('./free-video/apply-core.mjs');
+    const failed = payload?.email === 'fail@example.com';
+    console.log(`  ✉ apply ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
+    res.writeHead(failed ? 500 : 200, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify(failed ? { ok: false } : { ok: true, qualified: isQualified(payload) }));
+    return;
+  }
+
   // Lead-magnet signup and its optional qualifier answers. With KIT_API_KEY set
   // (`node --env-file=.env.local dev-server.mjs`) these run the real api/ handlers
   // against Kit. Otherwise they're mocks: they log the payload and `fail@example.com`
@@ -123,6 +157,7 @@ const lanIp = Object.values(networkInterfaces())
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  Creator Lab dev server — live reload on\n`);
   console.log(`  Signup API: ${process.env.KIT_API_KEY ? 'LIVE — signups go to Kit' : 'mock (no Kit)'}\n`);
+  console.log(`  Apply API:  ${process.env.NOTION_TOKEN ? 'LIVE — applications go to Notion and Kit' : 'mock (no Notion)'}\n`);
   console.log(`  Desktop:  http://localhost:${PORT}/`);
   if (lanIp) console.log(`  Phone:    http://${lanIp}:${PORT}/   (same Wi-Fi)`);
   console.log(`\n  Watching for changes. Ctrl+C to stop.\n`);
