@@ -36,7 +36,7 @@ export function validateNiche(value) {
   return String(value ?? '').trim() ? null : 'Please tell us your niche.';
 }
 
-const text = (value, max = Infinity) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
+export const text = (value, max = Infinity) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 
 // The cleaned application, or null when a required answer is missing or invalid.
 export function cleanApplication(body) {
@@ -69,7 +69,7 @@ export function cleanApplication(body) {
 // Calendly inline embed URL: name and email filled in, colours matched to the page.
 // Built with encodeURIComponent rather than URLSearchParams, which writes spaces as "+"
 // and Calendly then shows the name as "Ana+Diaz".
-export function calendlyUrl({ firstName = '', lastName = '', email = '' }) {
+export function calendlyUrl({ firstName = '', lastName = '', email = '' }, base = CALENDLY_URL) {
   const params = {
     name: `${firstName} ${lastName}`.trim(),
     ...(email ? { email } : {}),
@@ -79,7 +79,7 @@ export function calendlyUrl({ firstName = '', lastName = '', email = '' }) {
     primary_color: 'ff7a1a',
   };
   const query = Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
-  return `${CALENDLY_URL}?${query}`;
+  return `${base}?${query}`;
 }
 
 // The result the form saves for the thank-you page, or null if missing or malformed.
