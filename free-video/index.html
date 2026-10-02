@@ -33,10 +33,10 @@
 
 <section class="apply" id="apply"><div class="container">
   <form class="card reveal" id="apply-form" novalidate>
-    <div class="progress" role="progressbar" aria-label="Application progress" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1"><i></i></div>
+    <div class="progress" role="progressbar" aria-label="Application progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1"><i></i></div>
 
     <div class="step" data-step="1">
-      <div class="stepnum">Step 1 of 8</div>
+      <div class="stepnum">Step 1 of 9</div>
       <h2 id="q1">What's your name?</h2>
       <div class="names">
         <div>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="step" data-step="2" hidden>
-      <div class="stepnum">Step 2 of 8</div>
+      <div class="stepnum">Step 2 of 9</div>
       <h2 id="q2"><label for="email">What's your email?</label></h2>
       <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Email address" aria-describedby="email-err" enterkeyhint="next">
       <p class="err" id="email-err" aria-live="polite"></p>
@@ -63,7 +63,7 @@
     </div>
 
     <div class="step" data-step="3" hidden>
-      <div class="stepnum">Step 3 of 8</div>
+      <div class="stepnum">Step 3 of 9</div>
       <h2 id="q3" tabindex="-1">What's your experience with YouTube so far?</h2>
       <div class="choices" role="group" aria-labelledby="q3">
         <button class="choice" type="button" data-field="youtube" data-value="zero">Starting from zero</button>
@@ -74,29 +74,20 @@
     </div>
 
     <div class="step" data-step="4" hidden>
-      <div class="stepnum">Step 4 of 8</div>
-      <h2 id="q4" tabindex="-1">Do you run a business that's making revenue?</h2>
+      <div class="stepnum">Step 4 of 9</div>
+      <h2 id="q4" tabindex="-1">Do you have an offer you're selling?</h2>
       <div class="choices" role="group" aria-labelledby="q4">
-        <button class="choice" type="button" data-field="business" data-value="yes">Yes</button>
-        <button class="choice" type="button" data-field="business" data-value="no">Not yet</button>
+        <button class="choice" type="button" data-field="offer" data-value="yes">Yes</button>
+        <button class="choice" type="button" data-field="offer" data-value="planning">No, but planning to make one</button>
+        <button class="choice" type="button" data-field="offer" data-value="no">No, not planning on it</button>
       </div>
       <button class="linkish back" type="button">← Back</button>
     </div>
 
     <div class="step" data-step="5" hidden>
-      <div class="stepnum">Step 5 of 8</div>
-      <h2 id="q5" tabindex="-1">Do you have an offer you actively sell?</h2>
+      <div class="stepnum">Step 5 of 9</div>
+      <h2 id="q5" tabindex="-1">Are you willing to show up on camera?</h2>
       <div class="choices" role="group" aria-labelledby="q5">
-        <button class="choice" type="button" data-field="offer" data-value="yes">Yes</button>
-        <button class="choice" type="button" data-field="offer" data-value="no">Not yet</button>
-      </div>
-      <button class="linkish back" type="button">← Back</button>
-    </div>
-
-    <div class="step" data-step="6" hidden>
-      <div class="stepnum">Step 6 of 8</div>
-      <h2 id="q6" tabindex="-1">Are you willing to show up on camera?</h2>
-      <div class="choices" role="group" aria-labelledby="q6">
         <button class="choice" type="button" data-field="camera" data-value="yes">Yes</button>
         <button class="choice" type="button" data-field="camera" data-value="no">No</button>
         <button class="choice" type="button" data-field="camera" data-value="unsure">Unsure</button>
@@ -104,26 +95,50 @@
       <button class="linkish back" type="button">← Back</button>
     </div>
 
-    <div class="step" data-step="7" hidden>
-      <div class="stepnum">Step 7 of 8</div>
-      <h2 id="q7" tabindex="-1">Monthly budget to invest in growth?</h2>
-      <div class="choices" role="group" aria-labelledby="q7">
-        <button class="choice" type="button" data-field="budget" data-value="under1k">Under $1,000</button>
-        <button class="choice" type="button" data-field="budget" data-value="1k">$1,000 to $2,500</button>
-        <button class="choice" type="button" data-field="budget" data-value="2500">$2,500 to $5,000</button>
+    <div class="step" data-step="6" hidden>
+      <div class="stepnum">Step 6 of 9</div>
+      <h2 id="q6" tabindex="-1">Monthly budget to invest in growth?</h2>
+      <div class="choices" role="group" aria-labelledby="q6">
+        <button class="choice" type="button" data-field="budget" data-value="under1500">Under $1,500</button>
+        <button class="choice" type="button" data-field="budget" data-value="1500">$1,500 to $3,000</button>
+        <button class="choice" type="button" data-field="budget" data-value="3000">$3,000 to $5,000</button>
         <button class="choice" type="button" data-field="budget" data-value="5k">$5,000+</button>
       </div>
       <button class="linkish back" type="button">← Back</button>
     </div>
 
+    <div class="step" data-step="7" hidden>
+      <div class="stepnum">Step 7 of 9</div>
+      <h2 id="q7" tabindex="-1">Can you film within 7 days of getting your script?</h2>
+      <div class="choices" role="group" aria-labelledby="q7">
+        <button class="choice" type="button" data-field="film" data-value="week">Yes</button>
+        <button class="choice" type="button" data-field="film" data-value="weeks">Within 2 to 3 weeks</button>
+        <button class="choice" type="button" data-field="film" data-value="unsure">Not sure</button>
+      </div>
+      <button class="linkish back" type="button">← Back</button>
+    </div>
+
     <div class="step" data-step="8" hidden>
-      <div class="stepnum">Step 8 of 8</div>
-      <h2 id="q8" tabindex="-1">Tell us about your business</h2>
+      <div class="stepnum">Step 8 of 9</div>
+      <h2 id="q8" tabindex="-1">Will you post the video and let us share it as a case study?</h2>
+      <div class="choices" role="group" aria-labelledby="q8">
+        <button class="choice" type="button" data-field="share" data-value="both">Yes to both</button>
+        <button class="choice" type="button" data-field="share" data-value="post">I'll post it, but no case study</button>
+        <button class="choice" type="button" data-field="share" data-value="unsure">Not sure yet</button>
+      </div>
+      <button class="linkish back" type="button">← Back</button>
+    </div>
+
+    <div class="step" data-step="9" hidden>
+      <div class="stepnum">Step 9 of 9</div>
+      <h2 id="q9" tabindex="-1">Tell us about your channel</h2>
       <label class="field-label" for="niche">Your niche</label>
       <input id="niche" name="niche" type="text" maxlength="200" placeholder="e.g. Fitness coaching" aria-describedby="niche-err">
       <p class="err" id="niche-err" aria-live="polite"></p>
       <label class="field-label" for="channel">YouTube channel <span>(optional)</span></label>
       <input id="channel" name="channel" type="text" maxlength="200" placeholder="@handle or link" autocomplete="url">
+      <label class="field-label" for="source">Which video brought you here? <span>(optional)</span></label>
+      <input id="source" name="source" type="text" maxlength="200" placeholder="Video title or topic">
       <label class="field-label" for="why">Why do you want a free video? <span>(optional)</span></label>
       <textarea id="why" name="why" maxlength="1000" rows="3"></textarea>
       <button class="btn-primary" id="submit" type="submit">Submit Application<span class="arrow" aria-hidden="true">→</span></button>

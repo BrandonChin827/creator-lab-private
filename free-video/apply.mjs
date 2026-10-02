@@ -7,11 +7,11 @@ import { validateNiche, RESULT_KEY } from '/free-video/apply-core.mjs';
 
 const NEXT_URL = '/free-video/next/';
 const FAILURE = 'Something went wrong. Please try again.';
-const LAST_STEP = 8;
 
 const $ = id => document.getElementById(id);
 const form = $('apply-form');
 const steps = [...form.querySelectorAll('.step')];
+const LAST_STEP = steps.length;
 const progress = form.querySelector('.progress');
 const formErr = $('form-err');
 const submit = $('submit');
@@ -92,6 +92,7 @@ async function send() {
         firstName, lastName, email, ...answers,
         niche: $('niche').value.trim(),
         channel: $('channel').value.trim(),
+        source: $('source').value.trim(),
         why: $('why').value.trim(),
         utm: utms,
         ckid: readCkid(),
