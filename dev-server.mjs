@@ -40,10 +40,12 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Free Video application. With NOTION_TOKEN set (`node --env-file=.env.local dev-server.mjs`)
-  // it runs the real api/ handler against Notion and Kit. Otherwise it's a mock that logs the
-  // payload, answers with the real qualification rule, and returns 500 for `fail@example.com`.
-  if (pathname === '/api/apply') {
+  // Free Video (/api/apply) and Free Channel Audit (/api/audit) applications. With NOTION_TOKEN
+  // set (`node --env-file=.env.local dev-server.mjs`) they run the real api/ handlers against
+  // Notion and Kit. Otherwise they're mocks that log the payload, answer with the real
+  // qualification rule, and return 500 for `fail@example.com`.
+  if (pathname === '/api/apply' || pathname === '/api/audit') {
+    const isAudit = pathname === '/api/audit';
     if (req.method !== 'POST') {
       res.writeHead(405, { 'Content-Type': 'application/json' }).end('{"ok":false}');
       return;
@@ -54,10 +56,10 @@ const server = createServer(async (req, res) => {
       if (raw.length > 10_000) break;
     }
     if (process.env.NOTION_TOKEN) {
-      const { handleApply } = await import('./api/_apply.mjs');
-      const response = await handleApply(new Request(`http://localhost${pathname}`, { method: 'POST', body: raw }));
+      const handle = isAudit ? (await import('./api/_audit.mjs')).handleAudit : (await import('./api/_apply.mjs')).handleApply;
+      const response = await handle(new Request(`http://localhost${pathname}`, { method: 'POST', body: raw }));
       const text = await response.text();
-      console.log(`  ✉ apply → Notion/Kit ${response.status} ${text}`);
+      console.log(`  ✉ ${pathname.slice(5)} → Notion/Kit ${response.status} ${text}`);
       res.writeHead(response.status, { 'Content-Type': 'application/json' }).end(text);
       return;
     }
@@ -66,9 +68,9 @@ const server = createServer(async (req, res) => {
       res.writeHead(400, { 'Content-Type': 'application/json' }).end('{"ok":false}');
       return;
     }
-    const { isQualified } = await import('./free-video/apply-core.mjs');
+    const { isQualified } = await import(isAudit ? './free-audit/audit-core.mjs' : './free-video/apply-core.mjs');
     const failed = payload?.email === 'fail@example.com';
-    console.log(`  ✉ apply ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
+    console.log(`  ✉ ${pathname.slice(5)} ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
     res.writeHead(failed ? 500 : 200, { 'Content-Type': 'application/json' })
       .end(JSON.stringify(failed ? { ok: false } : { ok: true, qualified: isQualified(payload) }));
     return;
