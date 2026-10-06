@@ -21,8 +21,12 @@ document.querySelectorAll('a[data-book]').forEach(a=>a.addEventListener('click',
 
 (()=>{
 // VSL: the hero video autoplays muted; the first click restarts it from the top with sound.
+// player.js loads async so a slow CDN can't block the page. It only talks to iframes that
+// finish loading after it does, so mark the iframe loaded and ask for "ready" either way:
+// a loaded player answers, and one still starting up announces itself when ready.
 // Without player.js the overlay stays hidden and Bunny's own controls still work.
-const box=document.querySelector('.vsl');if(!box||!window.playerjs)return;
-const btn=box.querySelector('.vsl-sound'),player=new playerjs.Player(box.querySelector('iframe'));
-player.on('ready',()=>{btn.hidden=false;btn.addEventListener('click',()=>{player.unmute();player.setCurrentTime(0);player.play();btn.hidden=true},{once:true})});
+const box=document.querySelector('.vsl');if(!box)return;
+const init=()=>{const btn=box.querySelector('.vsl-sound'),player=new playerjs.Player(box.querySelector('iframe'));player.loaded=true;
+player.on('ready',()=>{btn.hidden=false;btn.addEventListener('click',()=>{player.unmute();player.setCurrentTime(0);player.play();btn.hidden=true},{once:true})})};
+if(window.playerjs)init();else document.getElementById('playerjs-script')?.addEventListener('load',init);
 })();
