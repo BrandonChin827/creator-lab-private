@@ -18,3 +18,11 @@ const openPopup=e=>{
 };
 document.querySelectorAll('a[data-book]').forEach(a=>a.addEventListener('click',openPopup));
 })();
+
+(()=>{
+// VSL: the hero video autoplays muted; the first click restarts it from the top with sound.
+// Without player.js the overlay stays hidden and Bunny's own controls still work.
+const box=document.querySelector('.vsl');if(!box||!window.playerjs)return;
+const btn=box.querySelector('.vsl-sound'),player=new playerjs.Player(box.querySelector('iframe'));
+player.on('ready',()=>{btn.hidden=false;btn.addEventListener('click',()=>{player.unmute();player.setCurrentTime(0);player.play();btn.hidden=true},{once:true})});
+})();
