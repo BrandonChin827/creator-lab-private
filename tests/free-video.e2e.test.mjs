@@ -263,7 +263,7 @@ test('qualified applicants see the 15 min Calendly with name and email filled in
   const { page, context, errors } = await open(NEXT, { init: saveResult(RESULT()) });
   assert.equal(await page.locator('h1').innerText(), 'You qualify, Ana!\nPick a time for your 15 min call.');
   const url = new URL(await page.locator('#cal').getAttribute('data-url'));
-  assert.equal(url.pathname, '/bentoboi/youtube-vide-strategy-consultation');
+  assert.equal(url.pathname, '/brandonchinportlock/youtube-vide-strategy-consultation');
   assert.equal(url.searchParams.get('name'), 'Ana Diaz');
   assert.equal(url.searchParams.get('email'), 'ana@example.com');
   assert.ok(await page.locator('#cal').isVisible());
