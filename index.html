@@ -30,4 +30,10 @@
 </main>
 <footer><div class="container"><div class="footer-bottom"><nav class="footer-col" aria-label="Footer"><b>Explore</b><a href="#how-it-works">How it works</a><a href="#why-work-with-me">Why us</a><a href="#faq">FAQ</a></nav><div class="footer-col"><b>Get started</b><a href="/apply/" data-book>Book a Call</a></div><div class="footer-legal"><span>© 2026 Portlock Creative</span><span><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span></div></div></div></footer>
 <div class="mobile-cta"><a class="btn-primary" href="/apply/" data-book>Book a Call<span class="arrow" aria-hidden="true">→</span></a></div>
+<script type="module">
+// Book a Call carries the visitor's utm_* tags to /apply/, which sends them to Kit with the application.
+import { parseUtms, appendUtms } from '/youtube-idea-skill/lead-core.mjs';
+const utms = parseUtms(location.search);
+for (const a of document.querySelectorAll('a[data-book]')) a.setAttribute('href', appendUtms(a.getAttribute('href'), utms));
+</script>
 <script src="/assets/site.js" defer></script></body></html>

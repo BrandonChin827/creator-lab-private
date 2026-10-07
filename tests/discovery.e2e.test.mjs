@@ -222,6 +222,18 @@ test('every Book a Call button on the homepage goes to /apply/, and Tally is gon
   await context.close();
 });
 
+test('UTMs on the homepage ride along through Book a Call and reach the application', async () => {
+  const { page, context, sent } = await open(`${BASE}/?utm_source=youtube&utm_campaign=oct&utm_content=video-7`);
+  await page.waitForFunction(() => document.querySelector('a[data-book]').getAttribute('href') !== '/apply/');
+  const hrefs = await page.locator('a[data-book]').evaluateAll(as => as.map(a => a.getAttribute('href')));
+  assert.ok(hrefs.every(h => h === '/apply/?utm_source=youtube&utm_campaign=oct&utm_content=video-7'), hrefs.join(', '));
+  await Promise.all([page.waitForURL(/\/apply\/\?/), page.locator('a[data-book]:visible').first().click()]);
+  await fillApplication(page);
+  await Promise.all([page.waitForURL(NEXT), pickTimeline(page)]);
+  assert.deepEqual(sent[0].postDataJSON().utm, { source: 'youtube', campaign: 'oct', content: 'video-7' });
+  await context.close();
+});
+
 test('the privacy page no longer lists Tally', async () => {
   const html = await (await fetch(`${BASE}/privacy`)).text();
   assert.doesNotMatch(html, /Tally/);
