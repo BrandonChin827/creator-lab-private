@@ -4,7 +4,7 @@
 import { validateFirstName, validateLastName, validateEmail, UTM_KEYS } from '../youtube-idea-skill/lead-core.mjs';
 
 export const RESULT_KEY = 'portlock.freeVideo';
-export const CALENDLY_URL = 'https://calendly.com/bentoboi/youtube-vide-strategy-consultation';
+export const CALENDLY_URL = 'https://calendly.com/brandonchinportlock/youtube-vide-strategy-consultation';
 export const LIMITS = { niche: 200, channel: 200, source: 200, why: 1000 };
 const MAX_CKID = 100;
 const MAX_UTM = 200;
