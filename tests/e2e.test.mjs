@@ -226,9 +226,10 @@ test('signup still works on browsers without AbortSignal.timeout (iOS 15)', asyn
 // ---------- Access page ----------
 
 const GOOD_GATE = JSON.stringify({ firstName: 'Ana', ts: 1 });
-const TALLY = 'https://tally.so/r/2EdJOb';
-// Third-party scripts (Tally) may log errors when offline; only our own errors count.
-const ownErrors = errors => errors.filter(e => !/clickledger|tally/i.test(e));
+// Book a Call goes to the in-house Discovery Call application.
+const BOOK = '/apply/';
+// Third-party scripts may log errors when offline; only our own errors count.
+const ownErrors = errors => errors.filter(e => !/clickledger/i.test(e));
 
 test('access without a signup redirects to the landing page', async () => {
   const { page, context } = await open(ACCESS);
@@ -275,7 +276,7 @@ test('every subscriber sees "Sent!" and the Book a Call pitch', async () => {
   assert.equal(await page.locator('#greet').innerText(), 'Sent! Check your inbox, Ana.');
   assert.match(await page.locator('.hero h1').innerText(), /Want a whole YouTube system\s+built around your business\?/);
   const book = page.locator('.hero a[data-book]');
-  assert.equal(await book.getAttribute('href'), TALLY);
+  assert.equal(await book.getAttribute('href'), BOOK);
   assert.equal((await book.textContent()).replace(/\s+/g, ' ').trim(), 'Book a Call→');
   assert.equal(await page.locator('text=Install this skill').count(), 0, 'no install steps on the page');
   await context.close();
@@ -285,8 +286,9 @@ test('Book a Call clicks are tracked', async () => {
   const { page, context } = await open(ACCESS, { gate: GOOD_GATE });
   await page.waitForSelector('#main:not([hidden])');
   await page.evaluate(() => {
-    window.Tally = { openPopup() {} }; // stand-in so the click opens the "popup" instead of navigating
-    document.querySelector('.hero a[data-book]').click();
+    const book = document.querySelector('.hero a[data-book]');
+    book.addEventListener('click', e => e.preventDefault()); // stay on the page to read the events
+    book.click();
   });
   const names = await page.evaluate(() => portlockEvents.map(e => e.name));
   assert.ok(names.includes('access_viewed') && names.includes('call_clicked'), names.join(', '));
@@ -472,7 +474,7 @@ test('homepage shows the Portlock PC logo top-left, linking to the top', async (
   assert.match(logo.label, /Portlock Creative/);
   assert.ok(logo.left < 40 && logo.top < 40, `logo should sit top-left, got ${logo.left},${logo.top}`);
   assert.ok(logo.h >= 24 && logo.h <= 48, `logo height ${logo.h}`);
-  assert.deepEqual(errors.filter(e => !/clickledger|tally/i.test(e)), []);
+  assert.deepEqual(errors.filter(e => !/clickledger/i.test(e)), []);
   await context.close();
 });
 

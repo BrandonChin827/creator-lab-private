@@ -40,12 +40,18 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Free Video (/api/apply) and Free Channel Audit (/api/audit) applications. With NOTION_TOKEN
-  // set (`node --env-file=.env.local dev-server.mjs`) they run the real api/ handlers against
-  // Notion and Kit. Otherwise they're mocks that log the payload, answer with the real
+  // Free Video (/api/apply), Free Channel Audit (/api/audit) and Discovery Call (/api/discovery)
+  // applications. With NOTION_TOKEN set (`node --env-file=.env.local dev-server.mjs`) they
+  // run the real api/ handlers against Notion and Kit; /api/discovery is Kit-only, so it
+  // needs KIT_API_KEY instead. Otherwise they're mocks that log the payload, answer with the real
   // qualification rule, and return 500 for `fail@example.com`.
-  if (pathname === '/api/apply' || pathname === '/api/audit') {
-    const isAudit = pathname === '/api/audit';
+  const APPLICATIONS = {
+    '/api/apply': { handler: ['./api/_apply.mjs', 'handleApply'], core: './free-video/apply-core.mjs', env: 'NOTION_TOKEN', saves: 'Notion/Kit' },
+    '/api/audit': { handler: ['./api/_audit.mjs', 'handleAudit'], core: './free-audit/audit-core.mjs', env: 'NOTION_TOKEN', saves: 'Notion/Kit' },
+    '/api/discovery': { handler: ['./api/_discovery.mjs', 'handleDiscovery'], core: './apply/discovery-core.mjs', env: 'KIT_API_KEY', saves: 'Kit' },
+  };
+  if (Object.hasOwn(APPLICATIONS, pathname)) {
+    const route = APPLICATIONS[pathname];
     if (req.method !== 'POST') {
       res.writeHead(405, { 'Content-Type': 'application/json' }).end('{"ok":false}');
       return;
@@ -55,11 +61,12 @@ const server = createServer(async (req, res) => {
       raw += chunk;
       if (raw.length > 10_000) break;
     }
-    if (process.env.NOTION_TOKEN) {
-      const handle = isAudit ? (await import('./api/_audit.mjs')).handleAudit : (await import('./api/_apply.mjs')).handleApply;
+    if (process.env[route.env]) {
+      const [file, name] = route.handler;
+      const handle = (await import(file))[name];
       const response = await handle(new Request(`http://localhost${pathname}`, { method: 'POST', body: raw }));
       const text = await response.text();
-      console.log(`  ✉ ${pathname.slice(5)} → Notion/Kit ${response.status} ${text}`);
+      console.log(`  ✉ ${pathname.slice(5)} → ${route.saves} ${response.status} ${text}`);
       res.writeHead(response.status, { 'Content-Type': 'application/json' }).end(text);
       return;
     }
@@ -68,7 +75,7 @@ const server = createServer(async (req, res) => {
       res.writeHead(400, { 'Content-Type': 'application/json' }).end('{"ok":false}');
       return;
     }
-    const { isQualified } = await import(isAudit ? './free-audit/audit-core.mjs' : './free-video/apply-core.mjs');
+    const { isQualified } = await import(route.core);
     const failed = payload?.email === 'fail@example.com';
     console.log(`  ✉ ${pathname.slice(5)} ${failed ? '(forced failure) ' : ''}${JSON.stringify(payload)}`);
     res.writeHead(failed ? 500 : 200, { 'Content-Type': 'application/json' })

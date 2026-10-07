@@ -8,18 +8,6 @@ document.querySelectorAll('.faq-q').forEach(b=>{const toggle=()=>{const item=b.c
 })();
 
 (()=>{
-// Gate: "Book a Call" opens the Tally screening form as a popup; qualified answers
-// redirect to Calendly (with name/email prefilled) inside Tally itself.
-const FORM='2EdJOb';
-const openPopup=e=>{
-  if(!window.Tally)return; // script not ready — let the link fall through to the full-page form
-  e.preventDefault();
-  Tally.openPopup(FORM,{layout:'modal',width:640,overlay:true});
-};
-document.querySelectorAll('a[data-book]').forEach(a=>a.addEventListener('click',openPopup));
-})();
-
-(()=>{
 // VSL: the hero video autoplays muted; the first click restarts it from the top with sound.
 // player.js loads async so a slow CDN can't block the page. It only talks to iframes that
 // finish loading after it does, so mark the iframe loaded and ask for "ready" either way:
