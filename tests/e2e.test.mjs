@@ -528,3 +528,16 @@ test('every page links to Privacy and Terms, and the links resolve', async () =>
     await context.close();
   }
 });
+
+const PAGES = ['/', '/youtube-idea-skill/', '/youtube-idea-skill/access/', '/free-video/', '/free-video/next/',
+  '/free-audit/', '/free-audit/next/', '/apply/', '/apply/next/', '/privacy/', '/terms/'];
+
+test('every page loads Vercel Web Analytics once, and the dev server stands in for its script', async () => {
+  for (const path of PAGES) {
+    const html = await (await fetch(`${BASE}${path}`)).text();
+    assert.equal(html.match(/<script defer src="\/_vercel\/insights\/script\.js"><\/script>/g)?.length, 1, path);
+  }
+  const script = await fetch(`${BASE}/_vercel/insights/script.js`);
+  assert.equal(script.status, 200);
+  assert.match(script.headers.get('content-type'), /javascript/);
+});
