@@ -63,14 +63,22 @@ function stepIsValid(n) {
 }
 
 async function apply(payload) {
-  const res = await fetch('/api/apply', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout?.(15000), // missing on iOS 15
-  });
-  const data = await res.json().catch(() => null);
-  return res.ok && data?.ok === true ? data : null;
+  // A timer plus AbortController rather than AbortSignal.timeout, which iOS 15 doesn't have,
+  // so a stalled connection always gives up after 15s and the visitor can try again.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch('/api/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    const data = await res.json().catch(() => null);
+    return res.ok && data?.ok === true ? data : null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function send() {
@@ -108,10 +116,18 @@ async function send() {
     return;
   }
   formErr.textContent = FAILURE;
+  resetSubmit();
+}
+
+function resetSubmit() {
   submit.disabled = false;
   submit.innerHTML = submitLabel;
   sending = false;
 }
+
+// Back from the thank-you page: Safari can restore this page exactly as it was left,
+// mid-"Sending…". Make Submit usable again.
+addEventListener('pageshow', e => { if (e.persisted) resetSubmit(); });
 
 // Enter or a step's button: validate the step, then move on (or send on the last step).
 form.addEventListener('submit', e => {
