@@ -40,6 +40,12 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Vercel Web Analytics only runs on Vercel; an empty script here keeps pages free of 404s.
+  if (pathname === '/_vercel/insights/script.js') {
+    res.writeHead(200, { 'Content-Type': TYPES['.js'] }).end('');
+    return;
+  }
+
   // Free Video (/api/apply), Free Channel Audit (/api/audit) and Discovery Call (/api/discovery)
   // applications. With NOTION_TOKEN set (`node --env-file=.env.local dev-server.mjs`) they
   // run the real api/ handlers against Notion and Kit; /api/discovery is Kit-only, so it
