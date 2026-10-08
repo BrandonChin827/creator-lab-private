@@ -116,6 +116,18 @@ test('an unqualified application is saved but only gets the applicant tag', asyn
   }
 });
 
+test('with the reminder sequence set, only qualified applicants join it', async () => {
+  const env = { ...ENV, KIT_SEQUENCE_DISCOVERY_REMINDER: '88' };
+  const qualified = fakeServices();
+  await run(APP, qualified, env);
+  const join = qualified.of('kit').find(c => c.path === '/sequences/88/subscribers');
+  assert.deepEqual(join.body, { email_address: 'ana@example.com' });
+
+  const unqualified = fakeServices();
+  await run({ ...APP, camera: 'no' }, unqualified, env);
+  assert.deepEqual(unqualified.of('kit').map(c => c.path), ['/subscribers', '/tags/55/subscribers']);
+});
+
 test('if only Kit fails, the Notion row still lands and the visitor gets through', async () => {
   const s = fakeServices({ kit: 500 });
   const res = await run(APP, s);

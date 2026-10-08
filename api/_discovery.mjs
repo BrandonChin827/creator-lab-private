@@ -62,11 +62,15 @@ export function kitFields(app) {
 }
 
 // Create or update the subscriber, then tag them. No form, so no skill email.
+// Qualified applicants also join the booking reminder sequence: its one email goes out a
+// day later, and Kit skips anyone tagged discovery-booked by then (set by api/_calendly.mjs).
 async function saveToKit(app, qualified, env, fetchImpl) {
   const headers = { 'X-Kit-Api-Key': env.KIT_API_KEY };
   await postJson(fetchImpl, `${KIT_API}/subscribers`, headers, { email_address: app.email, first_name: app.firstName, fields: kitFields(app) });
   const tags = qualified ? [env.KIT_TAG_DISCOVERY_APPLICANT, env.KIT_TAG_DISCOVERY_QUALIFIED] : [env.KIT_TAG_DISCOVERY_APPLICANT];
-  await Promise.all(tags.map(id => postJson(fetchImpl, `${KIT_API}/tags/${id}/subscribers`, headers, { email_address: app.email })));
+  const paths = tags.map(id => `/tags/${id}/subscribers`);
+  if (qualified && env.KIT_SEQUENCE_DISCOVERY_REMINDER) paths.push(`/sequences/${env.KIT_SEQUENCE_DISCOVERY_REMINDER}/subscribers`);
+  await Promise.all(paths.map(path => postJson(fetchImpl, `${KIT_API}${path}`, headers, { email_address: app.email })));
 }
 
 // ---------- POST /api/discovery ----------
