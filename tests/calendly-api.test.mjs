@@ -54,11 +54,11 @@ test('a Discovery Call booking tags them in Kit and sets their latest Notion row
   assert.deepEqual(update.body, { properties: { Status: { select: { name: 'Call booked' } } } });
 });
 
-test('someone who booked without applying still gets the Kit tag; Notion is left alone', async () => {
-  const apis = fakeApis({ rows: [] });
+test('someone who booked without applying (not in Kit, no Notion row) is acknowledged and not added anywhere', async () => {
+  const apis = fakeApis({ kit: 404, rows: [] });
   const res = await run(BOOKING, apis);
   assert.equal(res.status, 200);
-  assert.ok(apis.calls.some(c => c.url.includes('kit.com')));
+  assert.deepEqual(apis.calls.filter(c => c.url.includes('kit.com')).map(c => c.url), ['https://api.kit.com/v4/tags/77/subscribers']);
   assert.ok(!apis.calls.some(c => c.method === 'PATCH'));
 });
 
@@ -92,9 +92,9 @@ test('verifySignature accepts a fresh signature for the exact body', () => {
   assert.equal(verifySignature(sign(raw), `${raw} `, KEY, NOW), false);
 });
 
-test('one failed save still answers 200; both failing answers 502 so Calendly retries', async () => {
-  assert.equal((await run(BOOKING, fakeApis({ kit: 500 }))).status, 200);
-  assert.equal((await run(BOOKING, fakeApis({ notion: 500 }))).status, 200);
+test('if either save fails it answers 502 so Calendly retries', async () => {
+  assert.equal((await run(BOOKING, fakeApis({ kit: 500 }))).status, 502);
+  assert.equal((await run(BOOKING, fakeApis({ notion: 500 }))).status, 502);
   assert.equal((await run(BOOKING, fakeApis({ kit: 500, notion: 500 }))).status, 502);
 });
 

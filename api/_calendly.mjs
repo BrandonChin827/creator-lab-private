@@ -3,7 +3,7 @@
 // "Call booked". Other Calendly events are acknowledged and ignored.
 // Files starting with "_" in api/ are not turned into routes by Vercel.
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { json, postJson } from './_apply.mjs';
+import { json } from './_apply.mjs';
 
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
@@ -27,9 +27,16 @@ export function verifySignature(header, raw, key, now = Date.now()) {
   return given.length === expected.length && timingSafeEqual(given, Buffer.from(expected, 'utf8'));
 }
 
-function tagBooked(email, env, fetchImpl) {
-  return postJson(fetchImpl, `${KIT_API}/tags/${env.KIT_TAG_DISCOVERY_BOOKED}/subscribers`,
-    { 'X-Kit-Api-Key': env.KIT_API_KEY }, { email_address: email });
+// Kit answers 404 for someone who isn't a subscriber (booked without applying). They never
+// get the reminder, so there's nothing to tag, and they aren't added to the email list.
+async function tagBooked(email, env, fetchImpl) {
+  const res = await fetchImpl(`${KIT_API}/tags/${env.KIT_TAG_DISCOVERY_BOOKED}/subscribers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Kit-Api-Key': env.KIT_API_KEY },
+    body: JSON.stringify({ email_address: email }),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (!res.ok && res.status !== 404) throw new Error(`Kit tag → HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
 }
 
 async function notion(fetchImpl, env, method, path, body) {
@@ -76,7 +83,8 @@ export async function handleCalendly(request, { env = process.env, fetch: fetchI
 
   const results = await Promise.allSettled([tagBooked(email, env, fetchImpl), markNotionBooked(email, env, fetchImpl)]);
   for (const result of results) if (result.status === 'rejected') console.error(result.reason);
-  // A non-2xx makes Calendly retry, so only ask for that when nothing was saved.
-  if (results.every(result => result.status === 'rejected')) return json(502, { ok: false });
+  // A non-2xx makes Calendly retry. Both saves are safe to repeat, so retry if either failed:
+  // a missing Kit tag would send the reminder to someone who already booked.
+  if (results.some(result => result.status === 'rejected')) return json(502, { ok: false });
   return json(200, { ok: true });
 }
