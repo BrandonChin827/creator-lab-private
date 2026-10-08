@@ -55,7 +55,7 @@ test('homepage still loads without errors after the site.js guard', async () => 
 });
 
 // A fresh page with third-party scripts blocked, recording errors and /api/apply requests.
-async function open(url, { size = SIZES.desktop, init } = {}) {
+async function open(url, { size = SIZES.desktop, init, setup } = {}) {
   const context = await browser.newContext({ viewport: size });
   context.setDefaultTimeout(5000);
   await context.route(/clickledger\.io|calendly\.com/, route => route.abort());
@@ -67,6 +67,7 @@ async function open(url, { size = SIZES.desktop, init } = {}) {
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', e => errors.push(e.message));
   page.on('request', r => { if (r.url().endsWith('/api/apply')) applies.push(r); });
+  if (setup) await setup(page, context); // runs before the page loads, e.g. to install a fake clock
   await page.goto(url);
   return { page, context, errors, applies };
 }
@@ -385,5 +386,40 @@ test('the progress bar starts at step 1 of 9 (one ninth full)', async () => {
     return bar.querySelector('i').getBoundingClientRect().width / bar.getBoundingClientRect().width;
   });
   assert.ok(Math.abs(ratio - 1 / 9) < 0.005, String(ratio));
+  await context.close();
+});
+
+// An /api/apply that never answers, like a stalled phone connection.
+const hangApply = async (_page, context) => { await context.route('**/api/apply', () => {}); };
+
+test('a request that never answers gives up after 15 seconds and lets the visitor retry, even on iOS 15', async () => {
+  const { page, context } = await open(LANDING, {
+    setup: async (page, context) => {
+      await page.clock.install();
+      // Like iOS 15: no AbortSignal.timeout. Done after clock.install, which puts it back, and with
+      // defineProperty because the clock's version can't be deleted.
+      await page.addInitScript(() => Object.defineProperty(AbortSignal, 'timeout', { value: undefined, configurable: true, writable: true }));
+      await hangApply(page, context);
+    },
+  });
+  await fillApplication(page);
+  await page.click('#submit');
+  assert.match(await page.locator('#submit').innerText(), /Sending/i);
+  await page.clock.runFor(16_000);
+  await page.waitForSelector('#form-err:not(:empty)');
+  assert.equal(await page.locator('#form-err').innerText(), 'Something went wrong. Please try again.');
+  assert.equal(await page.locator('#submit').isDisabled(), false);
+  await context.close();
+});
+
+test("coming Back to the form from the browser's page cache re-enables Submit", async () => {
+  const { page, context } = await open(LANDING, { setup: hangApply });
+  await fillApplication(page);
+  await page.click('#submit');
+  assert.equal(await page.locator('#submit').isDisabled(), true);
+  // Safari restores the page exactly as it was left (mid-"Sending…") and fires pageshow with persisted = true.
+  await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+  assert.equal(await page.locator('#submit').isDisabled(), false);
+  assert.match(await page.locator('#submit').innerText(), /Submit Application/i);
   await context.close();
 });
