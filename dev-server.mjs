@@ -48,13 +48,12 @@ const server = createServer(async (req, res) => {
 
   // Free Video (/api/apply), Free Channel Audit (/api/audit) and Discovery Call (/api/discovery)
   // applications. With NOTION_TOKEN set (`node --env-file=.env.local dev-server.mjs`) they
-  // run the real api/ handlers against Notion and Kit; /api/discovery is Kit-only, so it
-  // needs KIT_API_KEY instead. Otherwise they're mocks that log the payload, answer with the real
-  // qualification rule, and return 500 for `fail@example.com`.
+  // run the real api/ handlers against Notion and Kit. Otherwise they're mocks that log the
+  // payload, answer with the real qualification rule, and return 500 for `fail@example.com`.
   const APPLICATIONS = {
     '/api/apply': { handler: ['./api/_apply.mjs', 'handleApply'], core: './free-video/apply-core.mjs', env: 'NOTION_TOKEN', saves: 'Notion/Kit' },
     '/api/audit': { handler: ['./api/_audit.mjs', 'handleAudit'], core: './free-audit/audit-core.mjs', env: 'NOTION_TOKEN', saves: 'Notion/Kit' },
-    '/api/discovery': { handler: ['./api/_discovery.mjs', 'handleDiscovery'], core: './apply/discovery-core.mjs', env: 'KIT_API_KEY', saves: 'Kit' },
+    '/api/discovery': { handler: ['./api/_discovery.mjs', 'handleDiscovery'], core: './apply/discovery-core.mjs', env: 'NOTION_TOKEN', saves: 'Notion/Kit' },
   };
   if (Object.hasOwn(APPLICATIONS, pathname)) {
     const route = APPLICATIONS[pathname];
