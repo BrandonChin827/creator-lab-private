@@ -12,8 +12,10 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#060608">
 <link rel="icon" type="image/png" href="/assets/graphics/portlock-icon.png"><link rel="apple-touch-icon" href="/assets/graphics/portlock-icon.png">
-<!-- ClickLedger: attributes visitors back to the video that sent them. -->
-<script src="https://www.clickledger.io/track.js" data-token="cmt0v4wd90001la04k78fpg3j" defer></script>
+<!-- ClickLedger: attributes visitors back to the video that sent them. Emails aren't
+     picked up as the visitor steps through the form: only a finished application counts,
+     reported by the form itself with tk.identify once it has been saved. -->
+<script src="https://www.clickledger.io/track.js" data-token="cmt0v4wd90001la04k78fpg3j" data-capture-emails="false" defer></script>
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="stylesheet" href="/free-video/free-video.css">
 <script type="module" src="/free-video/apply.mjs"></script>
