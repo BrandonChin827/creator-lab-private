@@ -162,6 +162,47 @@ test('valid signup sends one request with name, email and UTMs, then shows the o
   await context.close();
 });
 
+test('landing carries the ClickLedger snippet, reporting opt-ins itself', async () => {
+  const { page, context } = await open(LANDING);
+  const snippet = page.locator('script[src="https://www.clickledger.io/track.js"]');
+  assert.equal(await snippet.getAttribute('data-token'), 'cmt0v4wd90001la04k78fpg3j');
+  assert.equal(await snippet.getAttribute('data-capture-emails'), 'false', 'only a saved opt-in counts');
+  await context.close();
+});
+
+// The real snippet is blocked so the stub records exactly what the page reports.
+async function openWithTkStub() {
+  const context = await browser.newContext({ viewport: SIZES.desktop });
+  context.setDefaultTimeout(5000);
+  await context.route('https://www.clickledger.io/**', route => route.abort());
+  await context.addInitScript(() => {
+    window.tk = { identify: (email, name) => sessionStorage.setItem('identified', `${email}|${name}`) };
+  });
+  const page = await context.newPage();
+  await page.goto(LANDING);
+  return { page, context };
+}
+
+test('a saved opt-in tells ClickLedger who signed up', async () => {
+  const { page, context } = await openWithTkStub();
+  await completeStep1(page, 'Ana', 'Lee');
+  await page.fill('#email', 'ana@example.com');
+  await page.click('#submit');
+  await page.waitForSelector(step(3), { state: 'visible' });
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('identified')), 'ana@example.com|Ana Lee');
+  await context.close();
+});
+
+test('a failed opt-in tells ClickLedger nothing', async () => {
+  const { page, context } = await openWithTkStub();
+  await completeStep1(page);
+  await page.fill('#email', 'fail@example.com');
+  await page.click('#submit');
+  await page.waitForSelector('#form-err:not(:empty)');
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('identified')), null);
+  await context.close();
+});
+
 test('server error shows the form error, stays put, and re-enables the button', async () => {
   const { page, context } = await open(LANDING);
   await completeStep1(page);

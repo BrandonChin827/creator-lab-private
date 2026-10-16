@@ -107,6 +107,8 @@ form.addEventListener('submit', async e => {
     try { localStorage.setItem(GATE_KEY, JSON.stringify({ firstName, ts: Date.now() })); } catch {}
     if (isBot) return location.assign(ACCESS_URL);
     email = emailInput.value.trim();
+    // ClickLedger: credit this opt-in to the video that sent them (bots returned above).
+    window.tk?.identify?.(email, `${firstName} ${lastInput.value.trim()}`);
     track('optin_step', { step: 2, field: 'email' });
     track('optin_submitted');
     goToStep(3);
